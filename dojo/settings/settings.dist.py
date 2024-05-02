@@ -164,7 +164,7 @@ env = environ.FileAwareEnv(
         'Email': 'email',
         'UserName': 'username',
         'Firstname': 'first_name',
-        'Lastname': 'last_name'
+        'Lastname': 'last_name',
     }),
     DD_SAML2_ALLOW_UNKNOWN_ATTRIBUTE=(bool, False),
     # Authentication via HTTP Proxy which put username to HTTP Header REMOTE_USER
@@ -374,7 +374,7 @@ TAG_PREFETCHING = env('DD_TAG_PREFETCHING')
 # Parse database connection url strings like psql://user:pass@127.0.0.1:8458/db
 if os.getenv('DD_DATABASE_URL') is not None:
     DATABASES = {
-        'default': env.db('DD_DATABASE_URL')
+        'default': env.db('DD_DATABASE_URL'),
     }
 else:
     DATABASES = {
@@ -388,7 +388,7 @@ else:
             'PASSWORD': env('DD_DATABASE_PASSWORD'),
             'HOST': env('DD_DATABASE_HOST'),
             'PORT': env('DD_DATABASE_PORT'),
-        }
+        },
     }
 
 # Track migrations through source control rather than making migrations locally
@@ -628,23 +628,23 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'dojo.user.validators.DojoCommonPasswordValidator',
     },
     {
-        'NAME': 'dojo.user.validators.MinLengthValidator'
+        'NAME': 'dojo.user.validators.MinLengthValidator',
     },
     {
-        'NAME': 'dojo.user.validators.MaxLengthValidator'
+        'NAME': 'dojo.user.validators.MaxLengthValidator',
     },
     {
-        'NAME': 'dojo.user.validators.NumberValidator'
+        'NAME': 'dojo.user.validators.NumberValidator',
     },
     {
-        'NAME': 'dojo.user.validators.UppercaseValidator'
+        'NAME': 'dojo.user.validators.UppercaseValidator',
     },
     {
-        'NAME': 'dojo.user.validators.LowercaseValidator'
+        'NAME': 'dojo.user.validators.LowercaseValidator',
     },
     {
-        'NAME': 'dojo.user.validators.SymbolValidator'
-    }
+        'NAME': 'dojo.user.validators.SymbolValidator',
+    },
 ]
 
 # https://django-ratelimit.readthedocs.io/en/stable/index.html
@@ -755,7 +755,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 25,
-    'EXCEPTION_HANDLER': 'dojo.api_v2.exception_handler.custom_exception_handler'
+    'EXCEPTION_HANDLER': 'dojo.api_v2.exception_handler.custom_exception_handler',
 }
 
 if API_TOKENS_ENABLED:
@@ -774,8 +774,8 @@ SPECTACULAR_SETTINGS = {
     # show file selection dialogue, see https://github.com/tfranzel/drf-spectacular/issues/455
     "COMPONENT_SPLIT_REQUEST": True,
     "SWAGGER_UI_SETTINGS": {
-        "docExpansion": "none"
-    }
+        "docExpansion": "none",
+    },
 }
 
 if not env('DD_DEFAULT_SWAGGER_UI'):
@@ -1083,7 +1083,7 @@ CELERY_BROKER_URL = env('DD_CELERY_BROKER_URL') \
     env('DD_CELERY_BROKER_HOST'),
     env('DD_CELERY_BROKER_PORT'),
     env('DD_CELERY_BROKER_PATH'),
-    env('DD_CELERY_BROKER_PARAMS')
+    env('DD_CELERY_BROKER_PARAMS'),
 )
 CELERY_TASK_IGNORE_RESULT = env('DD_CELERY_TASK_IGNORE_RESULT')
 CELERY_RESULT_BACKEND = env('DD_CELERY_RESULT_BACKEND')
@@ -1104,7 +1104,7 @@ CELERY_BEAT_SCHEDULE = {
     'add-alerts': {
         'task': 'dojo.tasks.add_alerts',
         'schedule': timedelta(hours=1),
-        'args': [timedelta(hours=1)]
+        'args': [timedelta(hours=1)],
     },
     'cleanup-alerts': {
         'task': 'dojo.tasks.cleanup_alerts',
@@ -1113,7 +1113,7 @@ CELERY_BEAT_SCHEDULE = {
     'dedupe-delete': {
         'task': 'dojo.tasks.async_dupe_delete',
         'schedule': timedelta(minutes=1),
-        'args': [timedelta(minutes=1)]
+        'args': [timedelta(minutes=1)],
     },
     'flush_auditlog': {
         'task': 'dojo.tasks.flush_auditlog',
@@ -1154,9 +1154,9 @@ PROMETHEUS_EXPORT_MIGRATIONS = False
 if env('DD_DJANGO_METRICS_ENABLED'):
     DJANGO_METRICS_ENABLED = env('DD_DJANGO_METRICS_ENABLED')
     INSTALLED_APPS = INSTALLED_APPS + ('django_prometheus',)
-    MIDDLEWARE = ['django_prometheus.middleware.PrometheusBeforeMiddleware', ] + \
+    MIDDLEWARE = ['django_prometheus.middleware.PrometheusBeforeMiddleware'] + \
         MIDDLEWARE + \
-        ['django_prometheus.middleware.PrometheusAfterMiddleware', ]
+        ['django_prometheus.middleware.PrometheusAfterMiddleware']
     database_engine = DATABASES.get('default').get('ENGINE')
     DATABASES['default']['ENGINE'] = database_engine.replace('django.', 'django_prometheus.', 1)
     # CELERY_RESULT_BACKEND.replace('django.core','django_prometheus.', 1)
@@ -1257,7 +1257,7 @@ HASHCODE_FIELDS_PER_SCANNER = {
     'Snyk Code Scan': ['vuln_id_from_tool', 'file_path'],
     'Bearer CLI': ['title', 'severity'],
     'Nancy Scan': ['title', 'vuln_id_from_tool'],
-    'Wiz Scan': ['title', 'description', 'severity']
+    'Wiz Scan': ['title', 'description', 'severity'],
 }
 
 # Override the hardcoded settings here via the env var
@@ -1319,7 +1319,7 @@ HASHCODE_ALLOWS_NULL_CWE = {
     'Codechecker Report native': True,
     'Wazuh': True,
     'Nuclei Scan': True,
-    'Threagile risks report': True
+    'Threagile risks report': True,
 }
 
 # List of fields that are known to be usable in hash_code computation)
@@ -1503,15 +1503,15 @@ JIRA_ISSUE_TYPE_CHOICES_CONFIG = (
     ('Epic', 'Epic'),
     ('Spike', 'Spike'),
     ('Bug', 'Bug'),
-    ('Security', 'Security')
+    ('Security', 'Security'),
 )
 
 if env('DD_JIRA_EXTRA_ISSUE_TYPES') != '':
     if env('DD_JIRA_EXTRA_ISSUE_TYPES').count(',') > 0:
         for extra_type in env('DD_JIRA_EXTRA_ISSUE_TYPES').split(','):
-            JIRA_ISSUE_TYPE_CHOICES_CONFIG += (extra_type, extra_type),
+            JIRA_ISSUE_TYPE_CHOICES_CONFIG += (extra_type, extra_type)
     else:
-        JIRA_ISSUE_TYPE_CHOICES_CONFIG += (env('DD_JIRA_EXTRA_ISSUE_TYPES'), env('DD_JIRA_EXTRA_ISSUE_TYPES')),
+        JIRA_ISSUE_TYPE_CHOICES_CONFIG += (env('DD_JIRA_EXTRA_ISSUE_TYPES'), env('DD_JIRA_EXTRA_ISSUE_TYPES'))
 
 JIRA_SSL_VERIFY = env('DD_JIRA_SSL_VERIFY')
 
@@ -1535,7 +1535,7 @@ LOGGING = {
             'datefmt': '%d/%b/%Y %H:%M:%S',
         },
         'simple': {
-            'format': '%(levelname)s %(funcName)s %(lineno)d %(message)s'
+            'format': '%(levelname)s %(funcName)s %(lineno)d %(message)s',
         },
         'json': {
             '()': 'json_log_formatter.JSONFormatter',
@@ -1543,25 +1543,25 @@ LOGGING = {
     },
     'filters': {
         'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
+            '()': 'django.utils.log.RequireDebugFalse',
         },
         'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue'
+            '()': 'django.utils.log.RequireDebugTrue',
         },
     },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'django.utils.log.AdminEmailHandler',
         },
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'verbose',
         },
         'json_console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'json'
+            'formatter': 'json',
         },
     },
     'loggers': {
@@ -1609,7 +1609,7 @@ LOGGING = {
             'level': str(LOG_LEVEL),
             'propagate': False,
         },
-    }
+    },
 }
 
 # override filter to ensure sensitive variables are also hidden when DEBUG = True

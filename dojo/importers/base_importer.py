@@ -406,7 +406,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
             f"new: {len(new_findings)} "
             f"closed: {len(closed_findings)} "
             f"reactivated: {len(reactivated_findings)} "
-            f"untouched: {len(untouched_findings)} "
+            f"untouched: {len(untouched_findings)} ",
         )
         # Create a dictionary to stuff into the test import object
         import_settings = {}
@@ -566,7 +566,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
 
     def clean_unsaved_endpoints(
         self,
-        endpoints: List[Endpoint]
+        endpoints: List[Endpoint],
     ) -> None:
         """
         Clean endpoints that are supplied. For any endpoints that fail this validation
@@ -807,7 +807,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
 
     def process_request_response_pairs(
         self,
-        finding: Finding
+        finding: Finding,
     ) -> None:
         """
         Search the unsaved finding for the following attributes to determine
@@ -858,7 +858,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
 
     def process_vulnerability_ids(
         self,
-        finding: Finding
+        finding: Finding,
     ) -> Finding:
         """
         Parse the `unsaved_vulnerability_ids` field from findings after they are parsed

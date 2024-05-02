@@ -118,12 +118,12 @@ class DefaultImporter(BaseImporter):
         # Validate the Tool_Configuration
         engagement = self.verify_tool_configuration_from_engagement(
             kwargs.get("api_scan_configuration", None),
-            engagement
+            engagement,
         )
         # Make sure timezone is applied to dates
         kwargs["scan_date"], kwargs["now"] = self.add_timezone_scan_date_and_now(
             kwargs.get("scan_date"),
-            now=kwargs.get("now", timezone.now())
+            now=kwargs.get("now", timezone.now()),
         )
         # Fetch the parser based upon the string version of the scan type
         parser = self.get_parser(scan_type)
@@ -244,7 +244,7 @@ class DefaultImporter(BaseImporter):
             finding_helper.add_findings_to_auto_group(
                 group_name,
                 findings,
-                **kwargs
+                **kwargs,
             )
             if push_to_jira:
                 if findings[0].finding_group is not None:
@@ -254,7 +254,7 @@ class DefaultImporter(BaseImporter):
 
         sync = kwargs.get('sync', False)
         if not sync:
-            return [serialize('json', [finding, ]) for finding in new_findings]
+            return [serialize('json', [finding]) for finding in new_findings]
         return new_findings
 
     def close_old_findings(
@@ -290,12 +290,12 @@ class DefaultImporter(BaseImporter):
         # Get the initial filtered list of old findings to be closed without
         # considering the scope of the product or engagement
         old_findings = Finding.objects.exclude(
-            test=test
+            test=test,
         ).exclude(
-            hash_code__in=new_hash_codes
+            hash_code__in=new_hash_codes,
         ).filter(
             test__test_type=test.test_type,
-            active=True
+            active=True,
         )
         # Accommodate for product scope or engagement scope
         if kwargs.get("close_old_findings_product_scope"):

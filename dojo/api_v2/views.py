@@ -286,7 +286,7 @@ class DojoGroupMemberViewSet(
         return get_authorized_group_members(Permissions.Group_View).distinct()
 
     @extend_schema(
-        exclude=True
+        exclude=True,
     )
     def partial_update(self, request, pk=None):
         # Object authorization won't work if not all data is provided
@@ -327,7 +327,7 @@ class EndPointViewSet(
         responses={status.HTTP_200_OK: serializers.ReportGenerateSerializer},
     )
     @action(
-        detail=True, methods=["post"], permission_classes=[IsAuthenticated]
+        detail=True, methods=["post"], permission_classes=[IsAuthenticated],
     )
     def generate_report(self, request, pk=None):
         endpoint = self.get_object()
@@ -335,7 +335,7 @@ class EndPointViewSet(
         options = {}
         # prepare post data
         report_options = serializers.ReportGenerateOptionSerializer(
-            data=request.data
+            data=request.data,
         )
         if report_options.is_valid():
             options["include_finding_notes"] = report_options.validated_data[
@@ -352,7 +352,7 @@ class EndPointViewSet(
             ] = report_options.validated_data["include_table_of_contents"]
         else:
             return Response(
-                report_options.errors, status=status.HTTP_400_BAD_REQUEST
+                report_options.errors, status=status.HTTP_400_BAD_REQUEST,
             )
 
         data = report_generate(request, endpoint, options)
@@ -384,7 +384,7 @@ class EndpointStatusViewSet(
 
     def get_queryset(self):
         return get_authorized_endpoint_status(
-            Permissions.Endpoint_View
+            Permissions.Endpoint_View,
         ).distinct()
 
 
@@ -424,7 +424,7 @@ class EngagementViewSet(
         )
 
     @extend_schema(
-        request=OpenApiTypes.NONE, responses={status.HTTP_200_OK: ""}
+        request=OpenApiTypes.NONE, responses={status.HTTP_200_OK: ""},
     )
     @action(detail=True, methods=["post"])
     def close(self, request, pk=None):
@@ -433,7 +433,7 @@ class EngagementViewSet(
         return HttpResponse()
 
     @extend_schema(
-        request=OpenApiTypes.NONE, responses={status.HTTP_200_OK: ""}
+        request=OpenApiTypes.NONE, responses={status.HTTP_200_OK: ""},
     )
     @action(detail=True, methods=["post"])
     def reopen(self, request, pk=None):
@@ -446,7 +446,7 @@ class EngagementViewSet(
         responses={status.HTTP_200_OK: serializers.ReportGenerateSerializer},
     )
     @action(
-        detail=True, methods=["post"], permission_classes=[IsAuthenticated]
+        detail=True, methods=["post"], permission_classes=[IsAuthenticated],
     )
     def generate_report(self, request, pk=None):
         engagement = self.get_object()
@@ -454,7 +454,7 @@ class EngagementViewSet(
         options = {}
         # prepare post data
         report_options = serializers.ReportGenerateOptionSerializer(
-            data=request.data
+            data=request.data,
         )
         if report_options.is_valid():
             options["include_finding_notes"] = report_options.validated_data[
@@ -471,7 +471,7 @@ class EngagementViewSet(
             ] = report_options.validated_data["include_table_of_contents"]
         else:
             return Response(
-                report_options.errors, status=status.HTTP_400_BAD_REQUEST
+                report_options.errors, status=status.HTTP_400_BAD_REQUEST,
             )
 
         data = report_generate(request, engagement, options)
@@ -481,7 +481,7 @@ class EngagementViewSet(
     @extend_schema(
         methods=["GET"],
         responses={
-            status.HTTP_200_OK: serializers.EngagementToNotesSerializer
+            status.HTTP_200_OK: serializers.EngagementToNotesSerializer,
         },
     )
     @extend_schema(
@@ -494,7 +494,7 @@ class EngagementViewSet(
         engagement = self.get_object()
         if request.method == "POST":
             new_note = serializers.AddNewNoteOptionSerializer(
-                data=request.data
+                data=request.data,
             )
             if new_note.is_valid():
                 entry = new_note.validated_data["entry"]
@@ -502,7 +502,7 @@ class EngagementViewSet(
                 note_type = new_note.validated_data.get("note_type", None)
             else:
                 return Response(
-                    new_note.errors, status=status.HTTP_400_BAD_REQUEST
+                    new_note.errors, status=status.HTTP_400_BAD_REQUEST,
                 )
 
             author = request.user
@@ -516,22 +516,22 @@ class EngagementViewSet(
             engagement.notes.add(note)
 
             serialized_note = serializers.NoteSerializer(
-                {"author": author, "entry": entry, "private": private}
+                {"author": author, "entry": entry, "private": private},
             )
             return Response(
-                serialized_note.data, status=status.HTTP_201_CREATED
+                serialized_note.data, status=status.HTTP_201_CREATED,
             )
         notes = engagement.notes.all()
 
         serialized_notes = serializers.EngagementToNotesSerializer(
-            {"engagement_id": engagement, "notes": notes}
+            {"engagement_id": engagement, "notes": notes},
         )
         return Response(serialized_notes.data, status=status.HTTP_200_OK)
 
     @extend_schema(
         methods=["GET"],
         responses={
-            status.HTTP_200_OK: serializers.EngagementToFilesSerializer
+            status.HTTP_200_OK: serializers.EngagementToFilesSerializer,
         },
     )
     @extend_schema(
@@ -540,7 +540,7 @@ class EngagementViewSet(
         responses={status.HTTP_201_CREATED: serializers.FileSerializer},
     )
     @action(
-        detail=True, methods=["get", "post"], parser_classes=(MultiPartParser,)
+        detail=True, methods=["get", "post"], parser_classes=(MultiPartParser,),
     )
     def files(self, request, pk=None):
         engagement = self.get_object()
@@ -551,7 +551,7 @@ class EngagementViewSet(
                 file = new_file.validated_data["file"]
             else:
                 return Response(
-                    new_file.errors, status=status.HTTP_400_BAD_REQUEST
+                    new_file.errors, status=status.HTTP_400_BAD_REQUEST,
                 )
 
             file = FileUpload(title=title, file=file)
@@ -560,12 +560,12 @@ class EngagementViewSet(
 
             serialized_file = serializers.FileSerializer(file)
             return Response(
-                serialized_file.data, status=status.HTTP_201_CREATED
+                serialized_file.data, status=status.HTTP_201_CREATED,
             )
 
         files = engagement.files.all()
         serialized_files = serializers.EngagementToFilesSerializer(
-            {"engagement_id": engagement, "files": files}
+            {"engagement_id": engagement, "files": files},
         )
         return Response(serialized_files.data, status=status.HTTP_200_OK)
 
@@ -573,7 +573,7 @@ class EngagementViewSet(
         methods=["POST"],
         request=serializers.EngagementCheckListSerializer,
         responses={
-            status.HTTP_201_CREATED: serializers.EngagementCheckListSerializer
+            status.HTTP_201_CREATED: serializers.EngagementCheckListSerializer,
         },
     )
     @action(detail=True, methods=["get", "post"])
@@ -586,25 +586,25 @@ class EngagementViewSet(
             if check_lists.count() > 0:
                 return Response(
                     {
-                        "message": "A completed checklist for this engagement already exists."
+                        "message": "A completed checklist for this engagement already exists.",
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             check_list = serializers.EngagementCheckListSerializer(
-                data=request.data
+                data=request.data,
             )
             if not check_list.is_valid():
                 return Response(
-                    check_list.errors, status=status.HTTP_400_BAD_REQUEST
+                    check_list.errors, status=status.HTTP_400_BAD_REQUEST,
                 )
             check_list = Check_List(**check_list.data)
             check_list.engagement = engagement
             check_list.save()
             serialized_check_list = serializers.EngagementCheckListSerializer(
-                check_list
+                check_list,
             )
             return Response(
-                serialized_check_list.data, status=status.HTTP_201_CREATED
+                serialized_check_list.data, status=status.HTTP_201_CREATED,
             )
         prefetch_params = request.GET.get("prefetch", "").split(",")
         prefetcher = _Prefetcher()
@@ -656,7 +656,7 @@ class EngagementViewSet(
 
 
 class RiskAcceptanceViewSet(
-    PrefetchDojoModelViewSet
+    PrefetchDojoModelViewSet,
 ):
     serializer_class = serializers.RiskAcceptanceSerializer
     queryset = Risk_Acceptance.objects.none()
@@ -672,7 +672,7 @@ class RiskAcceptanceViewSet(
         return (
             get_authorized_risk_acceptances(Permissions.Risk_Acceptance)
             .prefetch_related(
-                "notes", "engagement_set", "owner", "accepted_findings"
+                "notes", "engagement_set", "owner", "accepted_findings",
             )
             .distinct()
         )
@@ -842,7 +842,7 @@ class FindingViewSet(
 
     def get_queryset(self):
         findings = get_authorized_findings(
-            Permissions.Finding_View
+            Permissions.Finding_View,
         ).prefetch_related(
             "endpoints",
             "reviewers",
@@ -883,7 +883,7 @@ class FindingViewSet(
 
         if request.method == "POST":
             finding_close = serializers.FindingCloseSerializer(
-                data=request.data
+                data=request.data,
             )
             if finding_close.is_valid():
                 finding.is_mitigated = finding_close.validated_data[
@@ -899,13 +899,13 @@ class FindingViewSet(
                 finding.mitigated_by = request.user
                 finding.active = False
                 finding.false_p = finding_close.validated_data.get(
-                    "false_p", False
+                    "false_p", False,
                 )
                 finding.duplicate = finding_close.validated_data.get(
-                    "duplicate", False
+                    "duplicate", False,
                 )
                 finding.out_of_scope = finding_close.validated_data.get(
-                    "out_of_scope", False
+                    "out_of_scope", False,
                 )
 
                 endpoints_status = finding.status_finding.all()
@@ -924,7 +924,7 @@ class FindingViewSet(
                 finding.save()
             else:
                 return Response(
-                    finding_close.errors, status=status.HTTP_400_BAD_REQUEST
+                    finding_close.errors, status=status.HTTP_400_BAD_REQUEST,
                 )
         serialized_finding = serializers.FindingCloseSerializer(finding)
         return Response(serialized_finding.data)
@@ -951,7 +951,7 @@ class FindingViewSet(
                 ]
 
                 for tag in tagulous.utils.parse_tags(
-                    new_tags.validated_data["tags"]
+                    new_tags.validated_data["tags"],
                 ):
                     if tag not in all_tags:
                         all_tags.append(tag)
@@ -960,7 +960,7 @@ class FindingViewSet(
                 finding.save()
             else:
                 return Response(
-                    new_tags.errors, status=status.HTTP_400_BAD_REQUEST
+                    new_tags.errors, status=status.HTTP_400_BAD_REQUEST,
                 )
         tags = finding.tags
         serialized_tags = serializers.TagSerializer({"tags": tags})
@@ -969,14 +969,14 @@ class FindingViewSet(
     @extend_schema(
         methods=["GET"],
         responses={
-            status.HTTP_200_OK: serializers.BurpRawRequestResponseSerializer
+            status.HTTP_200_OK: serializers.BurpRawRequestResponseSerializer,
         },
     )
     @extend_schema(
         methods=["POST"],
         request=serializers.BurpRawRequestResponseSerializer,
         responses={
-            status.HTTP_201_CREATED: serializers.BurpRawRequestResponseSerializer
+            status.HTTP_201_CREATED: serializers.BurpRawRequestResponseSerializer,
         },
     )
     @action(detail=True, methods=["get", "post"])
@@ -985,24 +985,24 @@ class FindingViewSet(
 
         if request.method == "POST":
             burps = serializers.BurpRawRequestResponseSerializer(
-                data=request.data, many=isinstance(request.data, list)
+                data=request.data, many=isinstance(request.data, list),
             )
             if burps.is_valid():
                 for pair in burps.validated_data["req_resp"]:
                     burp_rr = BurpRawRequestResponse(
                         finding=finding,
                         burpRequestBase64=base64.b64encode(
-                            pair["request"].encode("utf-8")
+                            pair["request"].encode("utf-8"),
                         ),
                         burpResponseBase64=base64.b64encode(
-                            pair["response"].encode("utf-8")
+                            pair["response"].encode("utf-8"),
                         ),
                     )
                     burp_rr.clean()
                     burp_rr.save()
             else:
                 return Response(
-                    burps.errors, status=status.HTTP_400_BAD_REQUEST
+                    burps.errors, status=status.HTTP_400_BAD_REQUEST,
                 )
         # Not necessarily Burp scan specific - these are just any request/response pairs
         burp_req_resp = BurpRawRequestResponse.objects.filter(finding=finding)
@@ -1016,7 +1016,7 @@ class FindingViewSet(
             response = burp.get_response()
             burp_list.append({"request": request, "response": response})
         serialized_burps = serializers.BurpRawRequestResponseSerializer(
-            {"req_resp": burp_list}
+            {"req_resp": burp_list},
         )
         return Response(serialized_burps.data)
 
@@ -1034,7 +1034,7 @@ class FindingViewSet(
         finding = self.get_object()
         if request.method == "POST":
             new_note = serializers.AddNewNoteOptionSerializer(
-                data=request.data
+                data=request.data,
             )
             if new_note.is_valid():
                 entry = new_note.validated_data["entry"]
@@ -1042,7 +1042,7 @@ class FindingViewSet(
                 note_type = new_note.validated_data.get("note_type", None)
             else:
                 return Response(
-                    new_note.errors, status=status.HTTP_400_BAD_REQUEST
+                    new_note.errors, status=status.HTTP_400_BAD_REQUEST,
                 )
 
             author = request.user
@@ -1061,15 +1061,15 @@ class FindingViewSet(
                 jira_helper.add_comment(finding.finding_group, note)
 
             serialized_note = serializers.NoteSerializer(
-                {"author": author, "entry": entry, "private": private}
+                {"author": author, "entry": entry, "private": private},
             )
             return Response(
-                serialized_note.data, status=status.HTTP_201_CREATED
+                serialized_note.data, status=status.HTTP_201_CREATED,
             )
         notes = finding.notes.all()
 
         serialized_notes = serializers.FindingToNotesSerializer(
-            {"finding_id": finding, "notes": notes}
+            {"finding_id": finding, "notes": notes},
         )
         return Response(serialized_notes.data, status=status.HTTP_200_OK)
 
@@ -1083,7 +1083,7 @@ class FindingViewSet(
         responses={status.HTTP_201_CREATED: serializers.FileSerializer},
     )
     @action(
-        detail=True, methods=["get", "post"], parser_classes=(MultiPartParser,)
+        detail=True, methods=["get", "post"], parser_classes=(MultiPartParser,),
     )
     def files(self, request, pk=None):
         finding = self.get_object()
@@ -1094,7 +1094,7 @@ class FindingViewSet(
                 file = new_file.validated_data["file"]
             else:
                 return Response(
-                    new_file.errors, status=status.HTTP_400_BAD_REQUEST
+                    new_file.errors, status=status.HTTP_400_BAD_REQUEST,
                 )
 
             file = FileUpload(title=title, file=file)
@@ -1103,12 +1103,12 @@ class FindingViewSet(
 
             serialized_file = serializers.FileSerializer(file)
             return Response(
-                serialized_file.data, status=status.HTTP_201_CREATED
+                serialized_file.data, status=status.HTTP_201_CREATED,
             )
 
         files = finding.files.all()
         serialized_files = serializers.FindingToFilesSerializer(
-            {"finding_id": finding, "files": files}
+            {"finding_id": finding, "files": files},
         )
         return Response(serialized_files.data, status=status.HTTP_200_OK)
 
@@ -1207,7 +1207,7 @@ class FindingViewSet(
 
             # serializer turns it into a string, but we need a list
             del_tags = tagulous.utils.parse_tags(
-                delete_tags.validated_data["tags"]
+                delete_tags.validated_data["tags"],
             )
             if len(del_tags) < 1:
                 return Response(
@@ -1218,7 +1218,7 @@ class FindingViewSet(
                 if tag not in all_tags:
                     return Response(
                         {
-                            "error": f"'{tag}' is not a valid tag in list"
+                            "error": f"'{tag}' is not a valid tag in list",
                         },
                         status=status.HTTP_400_BAD_REQUEST,
                     )
@@ -1232,13 +1232,13 @@ class FindingViewSet(
             )
         else:
             return Response(
-                delete_tags.errors, status=status.HTTP_400_BAD_REQUEST
+                delete_tags.errors, status=status.HTTP_400_BAD_REQUEST,
             )
 
     @extend_schema(
         responses={
-            status.HTTP_200_OK: serializers.FindingSerializer(many=True)
-        }
+            status.HTTP_200_OK: serializers.FindingSerializer(many=True),
+        },
     )
     @action(
         detail=True,
@@ -1251,7 +1251,7 @@ class FindingViewSet(
         finding = self.get_object()
         result = duplicate_cluster(request, finding)
         serializer = serializers.FindingSerializer(
-            instance=result, many=True, context={"request": request}
+            instance=result, many=True, context={"request": request},
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -1262,7 +1262,7 @@ class FindingViewSet(
     @action(detail=True, methods=["post"], url_path=r"duplicate/reset")
     def reset_finding_duplicate_status(self, request, pk):
         checked_duplicate_id = reset_finding_duplicate_status_internal(
-            request.user, pk
+            request.user, pk,
         )
         if checked_duplicate_id is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -1272,13 +1272,13 @@ class FindingViewSet(
         request=OpenApiTypes.NONE,
         parameters=[
             OpenApiParameter(
-                "new_fid", OpenApiTypes.INT, OpenApiParameter.PATH
-            )
+                "new_fid", OpenApiTypes.INT, OpenApiParameter.PATH,
+            ),
         ],
         responses={status.HTTP_204_NO_CONTENT: ""},
     )
     @action(
-        detail=True, methods=["post"], url_path=r"original/(?P<new_fid>\d+)"
+        detail=True, methods=["post"], url_path=r"original/(?P<new_fid>\d+)",
     )
     def set_finding_as_original(self, request, pk, new_fid):
         success = set_finding_as_original_internal(request.user, pk, new_fid)
@@ -1291,14 +1291,14 @@ class FindingViewSet(
         responses={status.HTTP_200_OK: serializers.ReportGenerateSerializer},
     )
     @action(
-        detail=False, methods=["post"], permission_classes=[IsAuthenticated]
+        detail=False, methods=["post"], permission_classes=[IsAuthenticated],
     )
     def generate_report(self, request):
         findings = self.get_queryset()
         options = {}
         # prepare post data
         report_options = serializers.ReportGenerateOptionSerializer(
-            data=request.data
+            data=request.data,
         )
         if report_options.is_valid():
             options["include_finding_notes"] = report_options.validated_data[
@@ -1315,7 +1315,7 @@ class FindingViewSet(
             ] = report_options.validated_data["include_table_of_contents"]
         else:
             return Response(
-                report_options.errors, status=status.HTTP_400_BAD_REQUEST
+                report_options.errors, status=status.HTTP_400_BAD_REQUEST,
             )
 
         data = report_generate(request, findings, options)
@@ -1325,7 +1325,7 @@ class FindingViewSet(
     def _get_metadata(self, request, finding):
         metadata = DojoMeta.objects.filter(finding=finding)
         serializer = serializers.FindingMetaSerializer(
-            instance=metadata, many=True
+            instance=metadata, many=True,
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -1333,7 +1333,7 @@ class FindingViewSet(
         metadata_name = request.query_params.get("name", None)
         if metadata_name is None:
             return Response(
-                "Metadata name is required", status=status.HTTP_400_BAD_REQUEST
+                "Metadata name is required", status=status.HTTP_400_BAD_REQUEST,
             )
 
         try:
@@ -1373,7 +1373,7 @@ class FindingViewSet(
             return Response(data=metadata_data.data, status=status.HTTP_200_OK)
         else:
             return Response(
-                metadata_data.errors, status=status.HTTP_400_BAD_REQUEST
+                metadata_data.errors, status=status.HTTP_400_BAD_REQUEST,
             )
 
     def _remove_metadata(self, request, finding):
@@ -1385,7 +1385,7 @@ class FindingViewSet(
             )
 
         metadata = get_object_or_404(
-            DojoMeta.objects, finding=finding, name=name
+            DojoMeta.objects, finding=finding, name=name,
         )
         metadata.delete()
 
@@ -1396,7 +1396,7 @@ class FindingViewSet(
         responses={
             status.HTTP_200_OK: serializers.FindingMetaSerializer(many=True),
             status.HTTP_404_NOT_FOUND: OpenApiResponse(
-                description="Returned if finding does not exist"
+                description="Returned if finding does not exist",
             ),
         },
     )
@@ -1410,17 +1410,17 @@ class FindingViewSet(
                 required=True,
                 description="name of the metadata to retrieve. If name is empty, return all the \
                                     metadata associated with the finding",
-            )
+            ),
         ],
         responses={
             status.HTTP_200_OK: OpenApiResponse(
-                description="Returned if the metadata was correctly deleted"
+                description="Returned if the metadata was correctly deleted",
             ),
             status.HTTP_404_NOT_FOUND: OpenApiResponse(
-                description="Returned if finding does not exist"
+                description="Returned if finding does not exist",
             ),
             status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-                description="Returned if there was a problem with the metadata information"
+                description="Returned if there was a problem with the metadata information",
             ),
         },
     )
@@ -1430,10 +1430,10 @@ class FindingViewSet(
         responses={
             status.HTTP_200_OK: serializers.FindingMetaSerializer,
             status.HTTP_404_NOT_FOUND: OpenApiResponse(
-                description="Returned if finding does not exist"
+                description="Returned if finding does not exist",
             ),
             status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-                description="Returned if there was a problem with the metadata information"
+                description="Returned if there was a problem with the metadata information",
             ),
         },
     )
@@ -1443,10 +1443,10 @@ class FindingViewSet(
         responses={
             status.HTTP_200_OK: serializers.FindingMetaSerializer,
             status.HTTP_404_NOT_FOUND: OpenApiResponse(
-                description="Returned if finding does not exist"
+                description="Returned if finding does not exist",
             ),
             status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-                description="Returned if there was a problem with the metadata information"
+                description="Returned if there was a problem with the metadata information",
             ),
         },
     )
@@ -1471,7 +1471,7 @@ class FindingViewSet(
             return self._remove_metadata(request, finding)
 
         return Response(
-            {"error", "unsupported method"}, status=status.HTTP_400_BAD_REQUEST
+            {"error", "unsupported method"}, status=status.HTTP_400_BAD_REQUEST,
         )
 
 
@@ -1589,7 +1589,7 @@ class ProductAPIScanConfigurationViewSet(
 
     def get_queryset(self):
         return get_authorized_product_api_scan_configurations(
-            Permissions.Product_API_Scan_Configuration_View
+            Permissions.Product_API_Scan_Configuration_View,
         )
 
 
@@ -1712,7 +1712,7 @@ class ProductViewSet(
         responses={status.HTTP_200_OK: serializers.ReportGenerateSerializer},
     )
     @action(
-        detail=True, methods=["post"], permission_classes=[IsAuthenticated]
+        detail=True, methods=["post"], permission_classes=[IsAuthenticated],
     )
     def generate_report(self, request, pk=None):
         product = self.get_object()
@@ -1720,7 +1720,7 @@ class ProductViewSet(
         options = {}
         # prepare post data
         report_options = serializers.ReportGenerateOptionSerializer(
-            data=request.data
+            data=request.data,
         )
         if report_options.is_valid():
             options["include_finding_notes"] = report_options.validated_data[
@@ -1737,7 +1737,7 @@ class ProductViewSet(
             ] = report_options.validated_data["include_table_of_contents"]
         else:
             return Response(
-                report_options.errors, status=status.HTTP_400_BAD_REQUEST
+                report_options.errors, status=status.HTTP_400_BAD_REQUEST,
             )
 
         data = report_generate(request, product, options)
@@ -1784,11 +1784,11 @@ class ProductMemberViewSet(
 
     def get_queryset(self):
         return get_authorized_product_members(
-            Permissions.Product_View
+            Permissions.Product_View,
         ).distinct()
 
     @extend_schema(
-        exclude=True
+        exclude=True,
     )
     def partial_update(self, request, pk=None):
         # Object authorization won't work if not all data is provided
@@ -1835,11 +1835,11 @@ class ProductGroupViewSet(
 
     def get_queryset(self):
         return get_authorized_product_groups(
-            Permissions.Product_Group_View
+            Permissions.Product_Group_View,
         ).distinct()
 
     @extend_schema(
-        exclude=True
+        exclude=True,
     )
     def partial_update(self, request, pk=None):
         # Object authorization won't work if not all data is provided
@@ -1893,7 +1893,7 @@ class ProductTypeViewSet(
 
     def get_queryset(self):
         return get_authorized_product_types(
-            Permissions.Product_Type_View
+            Permissions.Product_Type_View,
         ).distinct()
 
     # Overwrite perfom_create of CreateModelMixin to add current user as owner
@@ -1922,7 +1922,7 @@ class ProductTypeViewSet(
         responses={status.HTTP_200_OK: serializers.ReportGenerateSerializer},
     )
     @action(
-        detail=True, methods=["post"], permission_classes=[IsAuthenticated]
+        detail=True, methods=["post"], permission_classes=[IsAuthenticated],
     )
     def generate_report(self, request, pk=None):
         product_type = self.get_object()
@@ -1930,7 +1930,7 @@ class ProductTypeViewSet(
         options = {}
         # prepare post data
         report_options = serializers.ReportGenerateOptionSerializer(
-            data=request.data
+            data=request.data,
         )
         if report_options.is_valid():
             options["include_finding_notes"] = report_options.validated_data[
@@ -1947,7 +1947,7 @@ class ProductTypeViewSet(
             ] = report_options.validated_data["include_table_of_contents"]
         else:
             return Response(
-                report_options.errors, status=status.HTTP_400_BAD_REQUEST
+                report_options.errors, status=status.HTTP_400_BAD_REQUEST,
             )
 
         data = report_generate(request, product_type, options)
@@ -1994,14 +1994,14 @@ class ProductTypeMemberViewSet(
 
     def get_queryset(self):
         return get_authorized_product_type_members(
-            Permissions.Product_Type_View
+            Permissions.Product_Type_View,
         ).distinct()
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance.role.is_owner:
             owners = Product_Type_Member.objects.filter(
-                product_type=instance.product_type, role__is_owner=True
+                product_type=instance.product_type, role__is_owner=True,
             ).count()
             if owners <= 1:
                 return Response(
@@ -2012,7 +2012,7 @@ class ProductTypeMemberViewSet(
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @extend_schema(
-        exclude=True
+        exclude=True,
     )
     def partial_update(self, request, pk=None):
         # Object authorization won't work if not all data is provided
@@ -2059,11 +2059,11 @@ class ProductTypeGroupViewSet(
 
     def get_queryset(self):
         return get_authorized_product_type_groups(
-            Permissions.Product_Type_Group_View
+            Permissions.Product_Type_Group_View,
         ).distinct()
 
     @extend_schema(
-        exclude=True
+        exclude=True,
     )
     def partial_update(self, request, pk=None):
         # Object authorization won't work if not all data is provided
@@ -2086,7 +2086,7 @@ class StubFindingsViewSet(
 
     def get_queryset(self):
         return get_authorized_stub_findings(
-            Permissions.Finding_View
+            Permissions.Finding_View,
         ).distinct()
 
     def get_serializer_class(self):
@@ -2150,7 +2150,7 @@ class TestsViewSet(
         responses={status.HTTP_200_OK: serializers.ReportGenerateSerializer},
     )
     @action(
-        detail=True, methods=["post"], permission_classes=[IsAuthenticated]
+        detail=True, methods=["post"], permission_classes=[IsAuthenticated],
     )
     def generate_report(self, request, pk=None):
         test = self.get_object()
@@ -2158,7 +2158,7 @@ class TestsViewSet(
         options = {}
         # prepare post data
         report_options = serializers.ReportGenerateOptionSerializer(
-            data=request.data
+            data=request.data,
         )
         if report_options.is_valid():
             options["include_finding_notes"] = report_options.validated_data[
@@ -2175,7 +2175,7 @@ class TestsViewSet(
             ] = report_options.validated_data["include_table_of_contents"]
         else:
             return Response(
-                report_options.errors, status=status.HTTP_400_BAD_REQUEST
+                report_options.errors, status=status.HTTP_400_BAD_REQUEST,
             )
 
         data = report_generate(request, test, options)
@@ -2196,7 +2196,7 @@ class TestsViewSet(
         test = self.get_object()
         if request.method == "POST":
             new_note = serializers.AddNewNoteOptionSerializer(
-                data=request.data
+                data=request.data,
             )
             if new_note.is_valid():
                 entry = new_note.validated_data["entry"]
@@ -2204,7 +2204,7 @@ class TestsViewSet(
                 note_type = new_note.validated_data.get("note_type", None)
             else:
                 return Response(
-                    new_note.errors, status=status.HTTP_400_BAD_REQUEST
+                    new_note.errors, status=status.HTTP_400_BAD_REQUEST,
                 )
 
             author = request.user
@@ -2218,15 +2218,15 @@ class TestsViewSet(
             test.notes.add(note)
 
             serialized_note = serializers.NoteSerializer(
-                {"author": author, "entry": entry, "private": private}
+                {"author": author, "entry": entry, "private": private},
             )
             return Response(
-                serialized_note.data, status=status.HTTP_201_CREATED
+                serialized_note.data, status=status.HTTP_201_CREATED,
             )
         notes = test.notes.all()
 
         serialized_notes = serializers.TestToNotesSerializer(
-            {"test_id": test, "notes": notes}
+            {"test_id": test, "notes": notes},
         )
         return Response(serialized_notes.data, status=status.HTTP_200_OK)
 
@@ -2240,7 +2240,7 @@ class TestsViewSet(
         responses={status.HTTP_201_CREATED: serializers.FileSerializer},
     )
     @action(
-        detail=True, methods=["get", "post"], parser_classes=(MultiPartParser,)
+        detail=True, methods=["get", "post"], parser_classes=(MultiPartParser,),
     )
     def files(self, request, pk=None):
         test = self.get_object()
@@ -2251,7 +2251,7 @@ class TestsViewSet(
                 file = new_file.validated_data["file"]
             else:
                 return Response(
-                    new_file.errors, status=status.HTTP_400_BAD_REQUEST
+                    new_file.errors, status=status.HTTP_400_BAD_REQUEST,
                 )
 
             file = FileUpload(title=title, file=file)
@@ -2260,12 +2260,12 @@ class TestsViewSet(
 
             serialized_file = serializers.FileSerializer(file)
             return Response(
-                serialized_file.data, status=status.HTTP_201_CREATED
+                serialized_file.data, status=status.HTTP_201_CREATED,
             )
 
         files = test.files.all()
         serialized_files = serializers.TestToFilesSerializer(
-            {"test_id": test, "files": files}
+            {"test_id": test, "files": files},
         )
         return Response(serialized_files.data, status=status.HTTP_200_OK)
 
@@ -2372,7 +2372,7 @@ class TestImportViewSet(
 
     def get_queryset(self):
         return get_authorized_test_imports(
-            Permissions.Test_View
+            Permissions.Test_View,
         ).prefetch_related(
             "test_import_finding_action_set",
             "findings_affected",
@@ -2539,7 +2539,7 @@ class UserProfileView(GenericAPIView):
     serializer_class = serializers.UserProfileSerializer
 
     @action(
-        detail=True, methods=["get"], filter_backends=[], pagination_class=None
+        detail=True, methods=["get"], filter_backends=[], pagination_class=None,
     )
     def get(self, request, format=None):
         user = get_current_user()
@@ -2629,7 +2629,7 @@ class ImportScanView(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 # Authorization: authenticated users, DjangoModelPermissions
 class EndpointMetaImporterView(
-    mixins.CreateModelMixin, viewsets.GenericViewSet
+    mixins.CreateModelMixin, viewsets.GenericViewSet,
 ):
     """
     Imports a CSV file into a product to propagate arbitrary meta and tags on endpoints.
@@ -2868,14 +2868,14 @@ def report_generate(request, obj, options):
             prod_type=product_type,
             queryset=prefetch_related_findings_for_report(
                 Finding.objects.filter(
-                    test__engagement__product__prod_type=product_type
-                )
+                    test__engagement__product__prod_type=product_type,
+                ),
             ),
         )
 
         if len(findings.qs) > 0:
             start_date = timezone.make_aware(
-                datetime.combine(findings.qs.last().date, datetime.min.time())
+                datetime.combine(findings.qs.last().date, datetime.min.time()),
             )
         else:
             start_date = timezone.now()
@@ -2896,11 +2896,11 @@ def report_generate(request, obj, options):
             request.GET,
             product=product,
             queryset=prefetch_related_findings_for_report(
-                Finding.objects.filter(test__engagement__product=product)
+                Finding.objects.filter(test__engagement__product=product),
             ),
         )
         ids = get_endpoint_ids(
-            Endpoint.objects.filter(product=product).distinct()
+            Endpoint.objects.filter(product=product).distinct(),
         )
         endpoints = Endpoint.objects.filter(id__in=ids)
 
@@ -2910,14 +2910,14 @@ def report_generate(request, obj, options):
             request.GET,
             engagement=engagement,
             queryset=prefetch_related_findings_for_report(
-                Finding.objects.filter(test__engagement=engagement)
+                Finding.objects.filter(test__engagement=engagement),
             ),
         )
         report_name = "Engagement Report: " + str(engagement)
 
         ids = set(finding.id for finding in findings.qs)  # noqa: C401
         ids = get_endpoint_ids(
-            Endpoint.objects.filter(product=engagement.product).distinct()
+            Endpoint.objects.filter(product=engagement.product).distinct(),
         )
         endpoints = Endpoint.objects.filter(id__in=ids)
 
@@ -2927,7 +2927,7 @@ def report_generate(request, obj, options):
             request.GET,
             engagement=test.engagement,
             queryset=prefetch_related_findings_for_report(
-                Finding.objects.filter(test=test)
+                Finding.objects.filter(test=test),
             ),
         )
         report_name = "Test Report: " + str(test)
@@ -2937,12 +2937,12 @@ def report_generate(request, obj, options):
         host = endpoint.host
         report_name = "Endpoint Report: " + host
         endpoints = Endpoint.objects.filter(
-            host=host, product=endpoint.product
+            host=host, product=endpoint.product,
         ).distinct()
         findings = ReportFindingFilter(
             request.GET,
             queryset=prefetch_related_findings_for_report(
-                Finding.objects.filter(endpoints__in=endpoints)
+                Finding.objects.filter(endpoints__in=endpoints),
             ),
         )
 
@@ -3118,7 +3118,7 @@ def report_generate(request, obj, options):
 
 # Authorization: superuser
 class SystemSettingsViewSet(
-    mixins.ListModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet
+    mixins.ListModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet,
 ):
     """Basic control over System Settings. Use 'id' 1 for PUT, PATCH operations"""
 
@@ -3209,7 +3209,7 @@ class ConfigurationPermissionViewSet(
 ):
     serializer_class = serializers.ConfigurationPermissionSerializer
     queryset = Permission.objects.filter(
-        codename__in=get_configuration_permissions_codenames()
+        codename__in=get_configuration_permissions_codenames(),
     )
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ["id", "name", "codename"]
@@ -3264,7 +3264,7 @@ class QuestionnaireGeneralSurveyViewSet(
 
 
 class QuestionnaireEngagementSurveyViewSet(
-    viewsets.ReadOnlyModelViewSet
+    viewsets.ReadOnlyModelViewSet,
 ):
     serializer_class = serializers.QuestionnaireEngagementSurveySerializer
     queryset = Engagement_Survey.objects.all()
@@ -3291,7 +3291,7 @@ class QuestionnaireAnsweredSurveyViewSet(
 
 # Authorization: configuration
 class AnnouncementViewSet(
-    DojoModelViewSet
+    DojoModelViewSet,
 ):
     serializer_class = serializers.AnnouncementSerializer
     queryset = Announcement.objects.all()
