@@ -47,41 +47,41 @@ def system_settings(request):
 
     """
     form = SystemSettingsForm(instance=system_settings_obj)
-    if request.method == 'POST':
+    if request.method == "POST":
         form = SystemSettingsForm(request.POST, instance=system_settings_obj)
         if form.is_valid():
-            if (form.cleaned_data['default_group'] is None and form.cleaned_data['default_group_role'] is not None) or \
-               (form.cleaned_data['default_group'] is not None and form.cleaned_data['default_group_role'] is None):
+            if (form.cleaned_data["default_group"] is None and form.cleaned_data["default_group_role"] is not None) or \
+               (form.cleaned_data["default_group"] is not None and form.cleaned_data["default_group_role"] is None):
                 messages.add_message(request,
                     messages.WARNING,
-                    'Settings cannot be saved: Default group and Default group role must either both be set or both be empty.',
-                    extra_tags='alert-warning')
-            elif form.cleaned_data['minimum_password_length'] >= form.cleaned_data['maximum_password_length']:
+                    "Settings cannot be saved: Default group and Default group role must either both be set or both be empty.",
+                    extra_tags="alert-warning")
+            elif form.cleaned_data["minimum_password_length"] >= form.cleaned_data["maximum_password_length"]:
                 messages.add_message(request,
                     messages.WARNING,
-                    'Settings cannot be saved: Minimum required password length must be less than maximum required password length.',
-                    extra_tags='alert-warning')
-            elif form.cleaned_data['enable_deduplication'] is True and form.cleaned_data['false_positive_history'] is True:
+                    "Settings cannot be saved: Minimum required password length must be less than maximum required password length.",
+                    extra_tags="alert-warning")
+            elif form.cleaned_data["enable_deduplication"] is True and form.cleaned_data["false_positive_history"] is True:
                 messages.add_message(request,
                     messages.WARNING,
-                    'Settings cannot be saved: Deduplicate findings and False positive history can not be set at the same time.',
-                    extra_tags='alert-warning')
-            elif form.cleaned_data['retroactive_false_positive_history'] is True and form.cleaned_data['false_positive_history'] is False:
+                    "Settings cannot be saved: Deduplicate findings and False positive history can not be set at the same time.",
+                    extra_tags="alert-warning")
+            elif form.cleaned_data["retroactive_false_positive_history"] is True and form.cleaned_data["false_positive_history"] is False:
                 messages.add_message(request,
                     messages.WARNING,
-                    'Settings cannot be saved: Retroactive false positive history can not be set without False positive history.',
-                    extra_tags='alert-warning')
+                    "Settings cannot be saved: Retroactive false positive history can not be set without False positive history.",
+                    extra_tags="alert-warning")
             else:
                 form.save()
                 messages.add_message(request,
                                     messages.SUCCESS,
-                                    'Settings saved.',
-                                    extra_tags='alert-success')
-        return render(request, 'dojo/system_settings.html', {'form': form})
+                                    "Settings saved.",
+                                    extra_tags="alert-success")
+        return render(request, "dojo/system_settings.html", {"form": form})
 
     else:
         # Celery needs to be set with the setting: CELERY_RESULT_BACKEND = 'db+sqlite:///dojo.celeryresults.sqlite'
-        if hasattr(settings, 'CELERY_RESULT_BACKEND'):
+        if hasattr(settings, "CELERY_RESULT_BACKEND"):
             # Check the status of Celery by sending calling a celery task
             celery_bool = get_celery_worker_status()
 
@@ -97,8 +97,8 @@ def system_settings(request):
             celery_status = "Unkown"
 
     add_breadcrumb(title="Application settings", top_level=False, request=request)
-    return render(request, 'dojo/system_settings.html',
-                  {'form': form,
-                   'celery_bool': celery_bool,
-                   'celery_msg': celery_msg,
-                   'celery_status': celery_status})
+    return render(request, "dojo/system_settings.html",
+                  {"form": form,
+                   "celery_bool": celery_bool,
+                   "celery_msg": celery_msg,
+                   "celery_status": celery_status})

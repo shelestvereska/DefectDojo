@@ -112,7 +112,7 @@ class DefaultImporter(BaseImporter):
         - Send out notifications
         - Update the test progress
         """
-        logger.debug(f'IMPORT_SCAN: parameters: {locals()}')
+        logger.debug(f"IMPORT_SCAN: parameters: {locals()}")
         # Get a user in some point
         user = self.get_user_if_supplied(user=user)
         # Validate the Tool_Configuration
@@ -153,14 +153,14 @@ class DefaultImporter(BaseImporter):
             **kwargs,
         )
         # Send out som notifications to the user
-        logger.debug('IMPORT_SCAN: Generating notifications')
+        logger.debug("IMPORT_SCAN: Generating notifications")
         notifications_helper.notify_test_created(test)
         updated_count = len(new_findings) + len(closed_findings)
         notifications_helper.notify_scan_added(test, updated_count, new_findings=new_findings, findings_mitigated=closed_findings)
         # Update the test progress to reflect that the import has completed
-        logger.debug('IMPORT_SCAN: Updating Test progress')
+        logger.debug("IMPORT_SCAN: Updating Test progress")
         self.update_test_progress(test)
-        logger.debug('IMPORT_SCAN: Done')
+        logger.debug("IMPORT_SCAN: Done")
         return test, 0, len(new_findings), len(closed_findings), 0, 0, test_import_history
 
     def process_findings(
@@ -178,7 +178,7 @@ class DefaultImporter(BaseImporter):
         at import time
         """
         new_findings = []
-        logger.debug('starting import of %i parsed findings.', len(parsed_findings) if parsed_findings else 0)
+        logger.debug("starting import of %i parsed findings.", len(parsed_findings) if parsed_findings else 0)
         group_names_to_findings_dict = {}
 
         for unsaved_finding in parsed_findings:
@@ -199,7 +199,7 @@ class DefaultImporter(BaseImporter):
             unsaved_finding.reporter = user
             unsaved_finding.last_reviewed_by = user
             unsaved_finding.last_reviewed = now
-            logger.debug('process_parsed_findings: active from report: %s, verified from report: %s', unsaved_finding.active, unsaved_finding.verified)
+            logger.debug("process_parsed_findings: active from report: %s, verified from report: %s", unsaved_finding.active, unsaved_finding.verified)
             # indicates an override. Otherwise, do not change the value of unsaved_finding.active
             if (active := kwargs.get("active")) is not None:
                 unsaved_finding.active = active
@@ -252,9 +252,9 @@ class DefaultImporter(BaseImporter):
                 else:
                     jira_helper.push_to_jira(findings[0])
 
-        sync = kwargs.get('sync', False)
+        sync = kwargs.get("sync", False)
         if not sync:
-            return [serialize('json', [finding, ]) for finding in new_findings]
+            return [serialize("json", [finding, ]) for finding in new_findings]
         return new_findings
 
     def close_old_findings(
@@ -306,7 +306,7 @@ class DefaultImporter(BaseImporter):
         if service := kwargs.get("service"):
             old_findings = old_findings.filter(service=service)
         else:
-            old_findings = old_findings.filter(Q(service__isnull=True) | Q(service__exact=''))
+            old_findings = old_findings.filter(Q(service__isnull=True) | Q(service__exact=""))
         # Determine if pushing to jira or if the finding groups are enabled
         push_to_jira = kwargs.get("push_to_jira", False)
         finding_groups_enabled = is_finding_groups_enabled()
@@ -369,7 +369,7 @@ class DefaultImporter(BaseImporter):
             scan_type,
             **kwargs,
         )
-        logger.debug('IMPORT_SCAN: Parse findings')
+        logger.debug("IMPORT_SCAN: Parse findings")
         # Use the parent method for the rest of this
         return test, BaseImporter.parse_findings_static_test_type(
             self,
@@ -392,7 +392,7 @@ class DefaultImporter(BaseImporter):
         by the API based parser, aggregates all findings from each test
         into a single test, and then renames the test is applicable
         """
-        logger.debug('IMPORT_SCAN parser v2: Create Test and parse findings')
+        logger.debug("IMPORT_SCAN parser v2: Create Test and parse findings")
         parsed_findings = []
         tests = self.parse_dynamic_test_type_tests(
             parser,
@@ -402,7 +402,7 @@ class DefaultImporter(BaseImporter):
         )
         # Make sure we have at least one test returned
         if len(tests) == 0:
-            logger.info(f'No tests found in import for {scan_type}')
+            logger.info(f"No tests found in import for {scan_type}")
             return None, parsed_findings
         # for now we only consider the first test in the list and artificially aggregate all findings of all tests
         # this is the same as the old behavior as current import/reimporter implementation doesn't handle the case
@@ -431,7 +431,7 @@ class DefaultImporter(BaseImporter):
         if test_raw.description:
             test.description = test_raw.description
         test.save()
-        logger.debug('IMPORT_SCAN parser v2: Parse findings (aggregate)')
+        logger.debug("IMPORT_SCAN parser v2: Parse findings (aggregate)")
         # Aggregate all the findings and return them with the newly created test
         return test, self.parse_dynamic_test_type_findings_from_tests(tests)
 
@@ -481,11 +481,11 @@ class DefaultImporter(BaseImporter):
             # So I can check on the task later
             results_list += [result]
         # After all tasks have been started, time to pull the results
-        logger.info('IMPORT_SCAN: Collecting Findings')
+        logger.info("IMPORT_SCAN: Collecting Findings")
         for results in results_list:
             serial_new_findings = results.get()
             new_findings += [next(deserialize("json", finding)).object for finding in serial_new_findings]
-        logger.info('IMPORT_SCAN: All Findings Collected')
+        logger.info("IMPORT_SCAN: All Findings Collected")
         # Indicate that the test is not complete yet as endpoints will still be rolling in.
         test.percent_complete = 50
         test.save()

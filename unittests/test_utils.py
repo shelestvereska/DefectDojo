@@ -53,9 +53,9 @@ class TestUtils(DojoTestCase):
         test_output = prepare_for_view(encrypt)
         self.assertEqual(test_input, test_output)
 
-    @patch('dojo.models.System_Settings.objects')
-    @patch('dojo.utils.Dojo_Group_Member')
-    @patch('dojo.utils.Notifications')
+    @patch("dojo.models.System_Settings.objects")
+    @patch("dojo.utils.Dojo_Group_Member")
+    @patch("dojo.utils.Notifications")
     def test_user_post_save_without_template(self, mock_notifications, mock_member, mock_settings):
         user = Dojo_User()
         user.id = 1
@@ -85,9 +85,9 @@ class TestUtils(DojoTestCase):
         mock_notifications.assert_called_with(user=user)
         save_mock_notifications.save.assert_called_once()
 
-    @patch('dojo.models.System_Settings.objects')
-    @patch('dojo.utils.Dojo_Group_Member')
-    @patch('dojo.utils.Notifications')
+    @patch("dojo.models.System_Settings.objects")
+    @patch("dojo.utils.Dojo_Group_Member")
+    @patch("dojo.utils.Notifications")
     def test_user_post_save_with_template(self, mock_notifications, mock_member, mock_settings):
         user = Dojo_User()
         user.id = 1
@@ -117,13 +117,13 @@ class TestUtils(DojoTestCase):
         mock_notifications.objects.get.assert_called_with(template=True)
         template.save.assert_called_once()
 
-    @patch('dojo.models.System_Settings.objects')
-    @patch('dojo.utils.Dojo_Group_Member')
-    @patch('dojo.utils.Notifications')
+    @patch("dojo.models.System_Settings.objects")
+    @patch("dojo.utils.Dojo_Group_Member")
+    @patch("dojo.utils.Notifications")
     def test_user_post_save_email_pattern_matches(self, mock_notifications, mock_member, mock_settings):
         user = Dojo_User()
         user.id = 1
-        user.email = 'john.doe@example.com'
+        user.email = "john.doe@example.com"
 
         group = Dojo_Group()
         group.id = 1
@@ -133,7 +133,7 @@ class TestUtils(DojoTestCase):
         system_settings_group = System_Settings()
         system_settings_group.default_group = group
         system_settings_group.default_group_role = role
-        system_settings_group.default_group_email_pattern = '.*@example.com'
+        system_settings_group.default_group_email_pattern = ".*@example.com"
 
         mock_settings.get.return_value = system_settings_group
         save_mock_member = Mock(return_value=Dojo_Group_Member())
@@ -147,13 +147,13 @@ class TestUtils(DojoTestCase):
         mock_member.assert_called_with(group=group, user=user, role=role)
         save_mock_member.save.assert_called_once()
 
-    @patch('dojo.models.System_Settings.objects')
-    @patch('dojo.utils.Dojo_Group_Member')
-    @patch('dojo.utils.Notifications')
+    @patch("dojo.models.System_Settings.objects")
+    @patch("dojo.utils.Dojo_Group_Member")
+    @patch("dojo.utils.Notifications")
     def test_user_post_save_email_pattern_does_not_match(self, mock_notifications, mock_member, mock_settings):
         user = Dojo_User()
         user.id = 1
-        user.email = 'john.doe@partner.example.com'
+        user.email = "john.doe@partner.example.com"
 
         group = Dojo_Group()
         group.id = 1
@@ -163,7 +163,7 @@ class TestUtils(DojoTestCase):
         system_settings_group = System_Settings()
         system_settings_group.default_group = group
         system_settings_group.default_group_role = role
-        system_settings_group.default_group_email_pattern = '.*@example.com'
+        system_settings_group.default_group_email_pattern = ".*@example.com"
         save_mock_notifications = Mock(return_value=Notifications())
         mock_notifications.return_value = save_mock_notifications
         mock_notifications.objects.get.side_effect = Exception("Mock no templates")
@@ -196,7 +196,7 @@ class assertNumOfModelsCreated:
         self.test_case.assertEqual(
             created_count, self.num,
             "%i %s objects created, %i expected. query: %s, first 100 objects: %s" % (
-                created_count, self.queryset.model, self.num, self.queryset.query, self.queryset.all().order_by('-id')[:100]
+                created_count, self.queryset.model, self.num, self.queryset.query, self.queryset.all().order_by("-id")[:100]
             )
         )
 

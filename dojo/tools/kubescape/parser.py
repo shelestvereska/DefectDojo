@@ -29,14 +29,14 @@ class KubescapeParser:
             data = {}
         for resource in data["resources"]:
             resourceid = resource["resourceID"]
-            results = ([each for each in data["results"] if each.get('resourceID') == resourceid])
+            results = ([each for each in data["results"] if each.get("resourceID") == resourceid])
             controls = results[0].get("controls", [])
             try:
                 prioritizedResource = results[0]["prioritizedResource"]["severity"]
             except KeyError:
                 prioritizedResource = "Info"
             for control in controls:
-                controlID = control['controlID']
+                controlID = control["controlID"]
                 description = control["name"] + "\n\n"
                 description += "**resourceID:** " + resourceid + "\n"
                 description += "**resource object:** " + str(resource["object"]) + "\n"

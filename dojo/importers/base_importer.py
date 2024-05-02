@@ -268,7 +268,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
         Determine how to parse the findings based on the presence of the
         `get_tests` function on the parser object
         """
-        if hasattr(parser, 'get_tests'):
+        if hasattr(parser, "get_tests"):
             return self.parse_findings_dynamic_test_type(
                 parser,
                 scan_type,
@@ -355,7 +355,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
         # Update the target end of the engagement if it is a CI/CD engagement
         # If the supplied scan date is greater than the current configured
         # target end date on the engagement
-        if test.engagement.engagement_type == 'CI/CD':
+        if test.engagement.engagement_type == "CI/CD":
             test.engagement.target_end = max_safe([scan_date.date(), test.engagement.target_end])
         # Set the target end date on the test in a similar fashion
         max_test_start_date = max_safe([scan_date, test.target_end])
@@ -410,15 +410,15 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
         )
         # Create a dictionary to stuff into the test import object
         import_settings = {}
-        import_settings['active'] = kwargs.get("active")
-        import_settings['verified'] = kwargs.get("verified")
-        import_settings['minimum_severity'] = kwargs.get("minimum_severity")
-        import_settings['close_old_findings'] = kwargs.get("close_old_findings")
-        import_settings['push_to_jira'] = kwargs.get("push_to_jira")
-        import_settings['tags'] = kwargs.get("tags")
+        import_settings["active"] = kwargs.get("active")
+        import_settings["verified"] = kwargs.get("verified")
+        import_settings["minimum_severity"] = kwargs.get("minimum_severity")
+        import_settings["close_old_findings"] = kwargs.get("close_old_findings")
+        import_settings["push_to_jira"] = kwargs.get("push_to_jira")
+        import_settings["tags"] = kwargs.get("tags")
         # Add the list of endpoints that were added exclusively at import time
         if (endpoints_to_add := kwargs.get("endpoints_to_add")) and len(endpoints_to_add) > 0:
-            import_settings['endpoints'] = [str(endpoint) for endpoint in endpoints_to_add]
+            import_settings["endpoints"] = [str(endpoint) for endpoint in endpoints_to_add]
         # Create the test import object
         test_import = Test_Import.objects.create(
             test=test,
@@ -615,7 +615,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
             Endpoint_Status.objects.get_or_create(
                 finding=finding,
                 endpoint=ep,
-                defaults={'date': finding.date})
+                defaults={"date": finding.date})
         logger.debug(f"IMPORT_SCAN: {len(endpoints)} imported")
         return None
 
@@ -766,13 +766,13 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
         If not, raise a ValidationError explaining as such
         """
         # Checks around Informational/Info severity
-        starts_with_info = finding.severity.lower().startswith('info')
-        lower_none = finding.severity.lower() == 'none'
-        not_info = finding.severity != 'Info'
+        starts_with_info = finding.severity.lower().startswith("info")
+        lower_none = finding.severity.lower() == "none"
+        not_info = finding.severity != "Info"
         # Make the comparisons
         if not_info and (starts_with_info or lower_none):
             # Correct the severity
-            finding.severity = 'Info'
+            finding.severity = "Info"
         # Ensure the final severity is one of the supported options
         if finding.severity not in SEVERITIES:
             msg = (
@@ -818,7 +818,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
         Create BurpRawRequestResponse objects linked to the finding without
         returning the finding afterward
         """
-        if len(unsaved_req_resp := getattr(finding, 'unsaved_req_resp', [])) > 0:
+        if len(unsaved_req_resp := getattr(finding, "unsaved_req_resp", [])) > 0:
             for req_resp in unsaved_req_resp:
                 burp_rr = BurpRawRequestResponse(
                     finding=finding,
@@ -853,7 +853,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
         self.chunk_endpoints_and_disperse(finding, finding.test, finding.unsaved_endpoints)
         # Check for any that were added in the form
         if len(endpoints_to_add) > 0:
-            logger.debug('endpoints_to_add: %s', endpoints_to_add)
+            logger.debug("endpoints_to_add: %s", endpoints_to_add)
             self.chunk_endpoints_and_disperse(finding, finding.test, endpoints_to_add)
 
     def process_vulnerability_ids(
@@ -900,8 +900,8 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
         """
         if finding.unsaved_files:
             for unsaved_file in finding.unsaved_files:
-                data = base64.b64decode(unsaved_file.get('data'))
-                title = unsaved_file.get('title', '<No title>')
+                data = base64.b64decode(unsaved_file.get("data"))
+                title = unsaved_file.get("title", "<No title>")
                 file_upload, _ = FileUpload.objects.get_or_create(title=title)
                 file_upload.file.save(title, ContentFile(data))
                 file_upload.save()
