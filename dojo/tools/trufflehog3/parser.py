@@ -114,6 +114,7 @@ class TruffleHog3Parser:
         # author = json_data.get('author')
         commit = json_data.get("commit")
         date = json_data.get("date")
+        link = json_data.get("link")
 
         title = f"{message} found in {file}"
 
@@ -166,5 +167,6 @@ class TruffleHog3Parser:
                 dynamic_finding=False,
                 static_finding=True,
                 nb_occurences=1,
+                url=link
             )
             dupes[dupe_key] = finding
