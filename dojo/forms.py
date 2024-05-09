@@ -850,7 +850,6 @@ class BaseManageFileFormSet(forms.BaseModelFormSet):
             # Don't bother validating the formset unless each form is valid on its own
             return
         for form in self.forms:
-            print(dir(form))
             file = form.cleaned_data.get('file', None)
             if file:
                 ext = os.path.splitext(file.name)[1]  # [0] returns path+filename

@@ -145,7 +145,7 @@ def product(request):
     # perform annotation/prefetching by replacing the queryset in the page with an annotated/prefetched queryset.
     prod_list.object_list = prefetch_for_product(prod_list.object_list)
 
-    # print(prod_list.object_list.explain)
+    # logger.debug(prod_list.object_list.explain)
 
     add_breadcrumb(title=_("Product List"), top_level=not len(request.GET), request=request)
 
@@ -233,7 +233,6 @@ def view_product(request, pid):
         success_percent = round((float(total_pass) / float(total)) * 100, 2)
         waiting_percent = round((float(total_wait) / float(total)) * 100, 2)
         fail_percent = round(100 - success_percent - waiting_percent, 2)
-        print(fail_percent)
         benchAndPercent.append({
             'id': benchmarks[i].benchmark_type.id,
             'name': benchmarks[i].benchmark_type,
@@ -1663,7 +1662,7 @@ def edit_notifications(request, pid):
             logger.debug('existing product notifications found')
 
         form = ProductNotificationsForm(request.POST, instance=product_notifications)
-        # print(vars(form))
+        # logger.debug(vars(form))
 
         if form.is_valid():
             form.save()

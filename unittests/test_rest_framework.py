@@ -207,7 +207,7 @@ class SchemaChecker:
         if not condition:
             self._has_failed = True
             self._register_error(message)
-            # print(message)
+            # logger.debug(message)
 
     def _get_prefix(self):
         return '#'.join(self._prefix)
@@ -228,13 +228,13 @@ class SchemaChecker:
 
     def _check_has_required_fields(self, required_fields, obj):
         # if not required_fields:
-        #     print('no required fields')
+        #     logger.debug('no required fields')
 
         for required_field in required_fields:
             # passwords are writeOnly, but this is not supported by Swagger / OpenAPIv2
             # TODO check this for OpenAPI3
             if required_field != 'password':
-                # print('checking field: ', required_field)
+                # logger.debug('checking field: ', required_field)
                 field = f"{self._get_prefix()}#{required_field}"
                 self._check_or_fail(obj is not None and required_field in obj, f"{field} is required but was not returned")
 
@@ -291,7 +291,7 @@ class SchemaChecker:
             # Default case
             _check_helper(False)
 
-        # print('_check_type ok for: %s: %s' % (schema, obj))
+        # logger.debug('_check_type ok for: %s: %s' % (schema, obj))
 
     def _with_prefix(self, prefix, callable, *args):
         self._push_prefix(prefix)
@@ -319,7 +319,7 @@ class SchemaChecker:
                 for name, prop in properties.items():
                     obj_child = obj.get(name, None)
                     if obj_child is not None:
-                        # print('checking child: ', name, obj_child)
+                        # logger.debug('checking child: ', name, obj_child)
                         # self._with_prefix(name, _check, prop, obj_child)
                         _check(prop, obj_child)
 
@@ -369,7 +369,7 @@ class BaseClass:
 
         def check_schema(self, schema, obj):
             schema_checker = SchemaChecker(self.schema["components"])
-            # print(vars(schema_checker))
+            # logger.debug(vars(schema_checker))
             schema_checker.check(self.schema, obj)
 
         # def get_valid_object_id(self):
@@ -399,7 +399,7 @@ class BaseClass:
 
         @skipIfNotSubclass(ListModelMixin)
         def test_list(self):
-            # print(open_api3_json_schema)
+            # logger.debug(open_api3_json_schema)
             # validator = ResponseValidator(spec)
 
             check_for_tags = False
@@ -409,17 +409,17 @@ class BaseClass:
                 response = self.client.post(self.url, self.payload)
                 self.assertEqual(201, response.status_code, response.content[:1000])
 
-                # print('response:', response.content[:1000])
+                # logger.debug('response:', response.content[:1000])
                 check_for_id = response.data['id']
-                # print('id: ', check_for_id)
+                # logger.debug('id: ', check_for_id)
                 check_for_tags = self.payload.get('tags', None)
 
             response = self.client.get(self.url, format='json')
-            # print('response')
-            # print(vars(response))
+            # logger.debug('response')
+            # logger.debug(vars(response))
 
-            # print('response.data')
-            # print(response.data)
+            # logger.debug('response.data')
+            # logger.debug(response.data)
             # tags must be present in last entry, the one we created
             if check_for_tags:
                 tags_found = False
@@ -519,7 +519,7 @@ class BaseClass:
             current_objects = self.client.get(self.url, format='json').data
             relative_url = self.url + '{}/delete_preview/'.format(current_objects['results'][0]['id'])
             response = self.client.get(relative_url)
-            # print('delete_preview response.data')
+            # logger.debug('delete_preview response.data')
 
             self.assertEqual(200, response.status_code, response.content[:1000])
 
@@ -545,7 +545,7 @@ class BaseClass:
 
         @skipIfNotSubclass(PrefetchRetrieveMixin)
         def test_detail_prefetch(self):
-            # print("=======================================================")
+            # logger.debug("=======================================================")
             prefetchable_fields = [x[0] for x in _get_prefetchable_fields(self.viewset.serializer_class)]
 
             current_objects = self.client.get(self.url, format='json').data
@@ -1098,8 +1098,8 @@ class FindingRequestResponseTest(DojoAPITestCase):
 
     def test_request_response_get(self):
         response = self.client.get('/api/v2/findings/7/request_response/', format='json')
-        # print('response.data:')
-        # print(response.data)
+        # logger.debug('response.data:')
+        # logger.debug(response.data)
         self.assertEqual(200, response.status_code, response.content[:1000])
 
 

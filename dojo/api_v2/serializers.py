@@ -1154,7 +1154,7 @@ class EndpointSerializer(TaggitSerializer, serializers.ModelSerializer):
         exclude = ("inherited_tags",)
 
     def validate(self, data):
-        # print('EndpointSerialize.validate')
+        # logger.debug('EndpointSerialize.validate')
 
         if not self.context["request"].method == "PATCH":
             if "product" not in data:
