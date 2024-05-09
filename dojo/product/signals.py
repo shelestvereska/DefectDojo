@@ -28,11 +28,10 @@ def product_tags_post_add_remove(sender, instance, action, **kwargs):
 @receiver(signals.m2m_changed, sender=Test.tags.through)
 @receiver(signals.m2m_changed, sender=Finding.tags.through)
 def make_inherited_tags_sticky(sender, instance, action, **kwargs):
-    if action in ["post_add", "post_remove"]:
-        if inherit_product_tags(instance):
-            tag_list = [tag.name for tag in instance.tags.all()]
-            if propagate_inheritance(instance, tag_list=tag_list):
-                instance.inherit_tags(tag_list)
+    if action in ["post_add", "post_remove"] and inherit_product_tags(instance):
+        tag_list = [tag.name for tag in instance.tags.all()]
+        if propagate_inheritance(instance, tag_list=tag_list):
+            instance.inherit_tags(tag_list)
 
 
 @receiver(signals.post_save, sender=Endpoint)

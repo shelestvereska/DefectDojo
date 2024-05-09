@@ -318,30 +318,29 @@ def delete_test(request, tid):
     eng = test.engagement
     form = DeleteTestForm(instance=test)
 
-    if request.method == 'POST':
-        if 'id' in request.POST and str(test.id) == request.POST['id']:
-            form = DeleteTestForm(request.POST, instance=test)
-            if form.is_valid():
-                product = test.engagement.product
-                if get_setting("ASYNC_OBJECT_DELETE"):
-                    async_del = async_delete()
-                    async_del.delete(test)
-                    message = _('Test and relationships will be removed in the background.')
-                else:
-                    message = _('Test and relationships removed.')
-                    test.delete()
-                messages.add_message(request,
-                                     messages.SUCCESS,
-                                     message,
-                                     extra_tags='alert-success')
-                create_notification(event='other',
-                                    title=_(f"Deletion of {test.title}"),
-                                    product=product,
-                                    description=_(f'The test "{test.title}" was deleted by {request.user}'),
-                                    url=request.build_absolute_uri(reverse('view_engagement', args=(eng.id, ))),
-                                    recipients=[test.engagement.lead],
-                                    icon="exclamation-triangle")
-                return HttpResponseRedirect(reverse('view_engagement', args=(eng.id,)))
+    if request.method == 'POST' and 'id' in request.POST and str(test.id) == request.POST['id']:
+        form = DeleteTestForm(request.POST, instance=test)
+        if form.is_valid():
+            product = test.engagement.product
+            if get_setting("ASYNC_OBJECT_DELETE"):
+                async_del = async_delete()
+                async_del.delete(test)
+                message = _('Test and relationships will be removed in the background.')
+            else:
+                message = _('Test and relationships removed.')
+                test.delete()
+            messages.add_message(request,
+                                 messages.SUCCESS,
+                                 message,
+                                 extra_tags='alert-success')
+            create_notification(event='other',
+                                title=_(f"Deletion of {test.title}"),
+                                product=product,
+                                description=_(f'The test "{test.title}" was deleted by {request.user}'),
+                                url=request.build_absolute_uri(reverse('view_engagement', args=(eng.id, ))),
+                                recipients=[test.engagement.lead],
+                                icon="exclamation-triangle")
+            return HttpResponseRedirect(reverse('view_engagement', args=(eng.id,)))
 
     rels = ['Previewing the relationships has been disabled.', '']
     display_preview = get_setting('DELETE_PREVIEW')
@@ -872,10 +871,7 @@ class ReImportScanResultsView(View):
         # by default we keep a trace of the scan_type used to create the test
         # if it's not here, we use the "name" of the test type
         # this feature exists to provide custom label for tests for some parsers
-        if test.scan_type:
-            scan_type = test.scan_type
-        else:
-            scan_type = test.test_type.name
+        scan_type = test.scan_type if test.scan_type else test.test_type.name
         # Set the product tab
         product_tab = Product_Tab(test.engagement.product, title=_(f"Re-upload a {scan_type}"), tab="engagements")
         product_tab.setEngagement(test.engagement)

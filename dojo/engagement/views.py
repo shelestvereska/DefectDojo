@@ -320,10 +320,7 @@ def edit_engagement(request, eid):
             logger.debug('showing jira-epic-form')
             jira_epic_form = JIRAEngagementForm(instance=engagement)
 
-    if is_ci_cd:
-        title = 'Edit CI/CD Engagement'
-    else:
-        title = 'Edit Interactive Engagement'
+    title = 'Edit CI/CD Engagement' if is_ci_cd else 'Edit Interactive Engagement'
 
     product_tab = Product_Tab(engagement.product, title=title, tab="engagements")
     product_tab.setEngagement(engagement)
@@ -344,32 +341,31 @@ def delete_engagement(request, eid):
     product = engagement.product
     form = DeleteEngagementForm(instance=engagement)
 
-    if request.method == 'POST':
-        if 'id' in request.POST and str(engagement.id) == request.POST['id']:
-            form = DeleteEngagementForm(request.POST, instance=engagement)
-            if form.is_valid():
-                product = engagement.product
-                if get_setting("ASYNC_OBJECT_DELETE"):
-                    async_del = async_delete()
-                    async_del.delete(engagement)
-                    message = 'Engagement and relationships will be removed in the background.'
-                else:
-                    message = 'Engagement and relationships removed.'
-                    engagement.delete()
-                messages.add_message(
-                    request,
-                    messages.SUCCESS,
-                    message,
-                    extra_tags='alert-success')
-                create_notification(event='other',
-                                    title=f'Deletion of {engagement.name}',
-                                    product=product,
-                                    description=f'The engagement "{engagement.name}" was deleted by {request.user}',
-                                    url=request.build_absolute_uri(reverse('view_engagements', args=(product.id, ))),
-                                    recipients=[engagement.lead],
-                                    icon="exclamation-triangle")
+    if request.method == 'POST' and 'id' in request.POST and str(engagement.id) == request.POST['id']:
+        form = DeleteEngagementForm(request.POST, instance=engagement)
+        if form.is_valid():
+            product = engagement.product
+            if get_setting("ASYNC_OBJECT_DELETE"):
+                async_del = async_delete()
+                async_del.delete(engagement)
+                message = 'Engagement and relationships will be removed in the background.'
+            else:
+                message = 'Engagement and relationships removed.'
+                engagement.delete()
+            messages.add_message(
+                request,
+                messages.SUCCESS,
+                message,
+                extra_tags='alert-success')
+            create_notification(event='other',
+                                title=f'Deletion of {engagement.name}',
+                                product=product,
+                                description=f'The engagement "{engagement.name}" was deleted by {request.user}',
+                                url=request.build_absolute_uri(reverse('view_engagements', args=(product.id, ))),
+                                recipients=[engagement.lead],
+                                icon="exclamation-triangle")
 
-                return HttpResponseRedirect(reverse("view_engagements", args=(product.id, )))
+            return HttpResponseRedirect(reverse("view_engagements", args=(product.id, )))
 
     rels = ['Previewing the relationships has been disabled.', '']
     display_preview = get_setting('DELETE_PREVIEW')
@@ -478,10 +474,7 @@ class ViewEngagement(View):
             available_note_types = find_available_notetypes(notes)
         form = DoneForm()
         files = eng.files.all()
-        if note_type_activation:
-            form = TypedNoteForm(available_note_types=available_note_types)
-        else:
-            form = NoteForm()
+        form = TypedNoteForm(available_note_types=available_note_types) if note_type_activation else NoteForm()
 
         creds = Cred_Mapping.objects.filter(
             product=eng.product).select_related('cred_id').order_by('cred_id')
@@ -564,10 +557,7 @@ class ViewEngagement(View):
             new_note.date = timezone.now()
             new_note.save()
             eng.notes.add(new_note)
-            if note_type_activation:
-                form = TypedNoteForm(available_note_types=available_note_types)
-            else:
-                form = NoteForm()
+            form = TypedNoteForm(available_note_types=available_note_types) if note_type_activation else NoteForm()
             title = f"Engagement: {eng.name} on {eng.product.name}"
             messages.add_message(request,
                                  messages.SUCCESS,

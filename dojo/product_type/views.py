@@ -132,28 +132,27 @@ def delete_product_type(request, ptid):
     product_type = get_object_or_404(Product_Type, pk=ptid)
     form = Delete_Product_TypeForm(instance=product_type)
 
-    if request.method == 'POST':
-        if 'id' in request.POST and str(product_type.id) == request.POST['id']:
-            form = Delete_Product_TypeForm(request.POST, instance=product_type)
-            if form.is_valid():
-                if get_setting("ASYNC_OBJECT_DELETE"):
-                    async_del = async_delete()
-                    async_del.delete(product_type)
-                    message = 'Product Type and relationships will be removed in the background.'
-                else:
-                    message = 'Product Type and relationships removed.'
-                    product_type.delete()
-                messages.add_message(request,
-                                     messages.SUCCESS,
-                                     message,
-                                     extra_tags='alert-success')
-                create_notification(event='other',
-                                title=f'Deletion of {product_type.name}',
-                                no_users=True,
-                                description=f'The product type "{product_type.name}" was deleted by {request.user}',
-                                url=request.build_absolute_uri(reverse('product_type')),
-                                icon="exclamation-triangle")
-                return HttpResponseRedirect(reverse('product_type'))
+    if request.method == 'POST' and 'id' in request.POST and str(product_type.id) == request.POST['id']:
+        form = Delete_Product_TypeForm(request.POST, instance=product_type)
+        if form.is_valid():
+            if get_setting("ASYNC_OBJECT_DELETE"):
+                async_del = async_delete()
+                async_del.delete(product_type)
+                message = 'Product Type and relationships will be removed in the background.'
+            else:
+                message = 'Product Type and relationships removed.'
+                product_type.delete()
+            messages.add_message(request,
+                                 messages.SUCCESS,
+                                 message,
+                                 extra_tags='alert-success')
+            create_notification(event='other',
+                            title=f'Deletion of {product_type.name}',
+                            no_users=True,
+                            description=f'The product type "{product_type.name}" was deleted by {request.user}',
+                            url=request.build_absolute_uri(reverse('product_type')),
+                            icon="exclamation-triangle")
+            return HttpResponseRedirect(reverse('product_type'))
 
     rels = [_('Previewing the relationships has been disabled.'), '']
     display_preview = get_setting('DELETE_PREVIEW')

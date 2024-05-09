@@ -60,10 +60,7 @@ def process_endpoints_view(request, host_view=False, vulnerable=False):
 
     paged_endpoints = get_page_items(request, endpoints.qs, 25)
 
-    if vulnerable:
-        view_name = "Vulnerable"
-    else:
-        view_name = "All"
+    view_name = 'Vulnerable' if vulnerable else 'All'
 
     if host_view:
         view_name += " Hosts"
@@ -212,23 +209,22 @@ def delete_endpoint(request, eid):
     product = endpoint.product
     form = DeleteEndpointForm(instance=endpoint)
 
-    if request.method == 'POST':
-        if 'id' in request.POST and str(endpoint.id) == request.POST['id']:
-            form = DeleteEndpointForm(request.POST, instance=endpoint)
-            if form.is_valid():
-                product = endpoint.product
-                endpoint.delete()
-                messages.add_message(request,
-                                     messages.SUCCESS,
-                                     'Endpoint and relationships removed.',
-                                     extra_tags='alert-success')
-                create_notification(event='other',
-                                    title=f'Deletion of {endpoint}',
-                                    product=product,
-                                    description=f'The endpoint "{endpoint}" was deleted by {request.user}',
-                                    url=reverse('endpoint'),
-                                    icon="exclamation-triangle")
-                return HttpResponseRedirect(reverse('view_product', args=(product.id,)))
+    if request.method == 'POST' and 'id' in request.POST and str(endpoint.id) == request.POST['id']:
+        form = DeleteEndpointForm(request.POST, instance=endpoint)
+        if form.is_valid():
+            product = endpoint.product
+            endpoint.delete()
+            messages.add_message(request,
+                                 messages.SUCCESS,
+                                 'Endpoint and relationships removed.',
+                                 extra_tags='alert-success')
+            create_notification(event='other',
+                                title=f'Deletion of {endpoint}',
+                                product=product,
+                                description=f'The endpoint "{endpoint}" was deleted by {request.user}',
+                                url=reverse('endpoint'),
+                                icon="exclamation-triangle")
+            return HttpResponseRedirect(reverse('view_product', args=(product.id,)))
 
     collector = NestedObjects(using=DEFAULT_DB_ALIAS)
     collector.collect([endpoint])

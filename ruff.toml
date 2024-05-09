@@ -47,6 +47,7 @@ select = [
    "ICN",
    "LOG",
    "SLOT",
+   "SIM",
    "PD",
    "PGH",
    "TRY004",
@@ -55,7 +56,7 @@ select = [
    "NPY",
    "AIR",
 ]
-ignore = ["E501", "E722", "F821"]
+ignore = ["E501", "E722", "F821", "SIM102", "SIM113", "SIM115", "SIM116", "SIM117"]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
