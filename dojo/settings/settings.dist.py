@@ -1255,6 +1255,7 @@ HASHCODE_FIELDS_PER_SCANNER = {
     'MobSF Scan': ['title', 'description', 'severity'],
     'OSV Scan': ['title', 'description', 'severity'],
     'Snyk Code Scan': ['vuln_id_from_tool', 'file_path'],
+    'Deepfence Threatmapper Report': ['title', 'description', 'severity'],
     'Bearer CLI': ['title', 'severity'],
     'Nancy Scan': ['title', 'vuln_id_from_tool'],
     'Wiz Scan': ['title', 'description', 'severity']
@@ -1472,8 +1473,7 @@ DEDUPLICATION_ALGORITHM_PER_PARSER = {
     'MobSF Scan': DEDUPE_ALGO_HASH_CODE,
     'OSV Scan': DEDUPE_ALGO_HASH_CODE,
     'Nosey Parker Scan': DEDUPE_ALGO_UNIQUE_ID_FROM_TOOL_OR_HASH_CODE,
-    'Bearer CLI': DEDUPE_ALGO_HASH_CODE,
-    'Wiz Scan': DEDUPE_ALGO_HASH_CODE,
+    'Deepfence Threatmapper Report': DEDUPE_ALGO_HASH_CODE,
 }
 
 # Override the hardcoded settings here via the env var
