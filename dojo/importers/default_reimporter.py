@@ -69,7 +69,7 @@ class DefaultReImporter(BaseImporter):
         - Send out notifications
         - Update the test progress
         """
-        logger.debug(f'REIMPORT_SCAN: parameters: {locals()}')
+        logger.debug(f"REIMPORT_SCAN: parameters: {locals()}")
         # Get a user in some point
         user = self.get_user_if_supplied(user=user)
         # Validate the Tool_Configuration
@@ -120,7 +120,7 @@ class DefaultReImporter(BaseImporter):
             **kwargs,
         )
         # Send out som notifications to the user
-        logger.debug('REIMPORT_SCAN: Generating notifications')
+        logger.debug("REIMPORT_SCAN: Generating notifications")
         updated_count = (
             len(closed_findings) + len(reactivated_findings) + len(new_findings)
         )
@@ -133,9 +133,9 @@ class DefaultReImporter(BaseImporter):
             findings_untouched=untouched_findings,
         )
         # Update the test progress to reflect that the import has completed
-        logger.debug('REIMPORT_SCAN: Updating Test progress')
+        logger.debug("REIMPORT_SCAN: Updating Test progress")
         self.update_test_progress(test)
-        logger.debug('REIMPORT_SCAN: Done')
+        logger.debug("REIMPORT_SCAN: Done")
         return (
             test,
             updated_count,
@@ -452,26 +452,26 @@ class DefaultReImporter(BaseImporter):
         """
         # This code should match the logic used for deduplication out of the re-import feature.
         # See utils.py deduplicate_* functions
-        deduplicationLogger.debug('return findings bases on algorithm: %s', deduplication_algorithm)
-        if deduplication_algorithm == 'hash_code':
+        deduplicationLogger.debug("return findings bases on algorithm: %s", deduplication_algorithm)
+        if deduplication_algorithm == "hash_code":
             return Finding.objects.filter(
                 test=test,
                 hash_code=unsaved_finding.hash_code
-            ).exclude(hash_code=None).order_by('id')
-        elif deduplication_algorithm == 'unique_id_from_tool':
+            ).exclude(hash_code=None).order_by("id")
+        elif deduplication_algorithm == "unique_id_from_tool":
             return Finding.objects.filter(
                 test=test,
                 unique_id_from_tool=unsaved_finding.unique_id_from_tool
-            ).exclude(unique_id_from_tool=None).order_by('id')
-        elif deduplication_algorithm == 'unique_id_from_tool_or_hash_code':
+            ).exclude(unique_id_from_tool=None).order_by("id")
+        elif deduplication_algorithm == "unique_id_from_tool_or_hash_code":
             query = Finding.objects.filter(
                 Q(test=test),
                 (Q(hash_code__isnull=False) & Q(hash_code=unsaved_finding.hash_code))
                 | (Q(unique_id_from_tool__isnull=False) & Q(unique_id_from_tool=unsaved_finding.unique_id_from_tool))
-            ).order_by('id')
+            ).order_by("id")
             deduplicationLogger.debug(query.query)
             return query
-        elif deduplication_algorithm == 'legacy':
+        elif deduplication_algorithm == "legacy":
             # This is the legacy reimport behavior. Although it's pretty flawed and doesn't match the legacy algorithm for deduplication,
             # this is left as is for simplicity.
             # Re-writing the legacy deduplication here would be complicated and counter-productive.
@@ -481,7 +481,7 @@ class DefaultReImporter(BaseImporter):
                     title=unsaved_finding.title,
                     test=test,
                     severity=unsaved_finding.severity,
-                    numerical_severity=Finding.get_numerical_severity(unsaved_finding.severity)).order_by('id')
+                    numerical_severity=Finding.get_numerical_severity(unsaved_finding.severity)).order_by("id")
         else:
             logger.error(f"Internal error: unexpected deduplication_algorithm: \"{deduplication_algorithm}\"")
             return None
@@ -708,7 +708,7 @@ class DefaultReImporter(BaseImporter):
                 if verified is not None:
                     existing_finding.verified = verified
             elif unsaved_finding.risk_accepted or unsaved_finding.false_p or unsaved_finding.out_of_scope:
-                logger.debug('Reimported mitigated item matches a finding that is currently open, closing.')
+                logger.debug("Reimported mitigated item matches a finding that is currently open, closing.")
                 logger.debug(
                     f"Closing: {existing_finding.id}: {existing_finding.title} "
                     f"({existing_finding.component_name} - {existing_finding.component_version})"
