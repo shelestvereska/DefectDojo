@@ -79,22 +79,21 @@ def system_settings(request):
                                     extra_tags='alert-success')
         return render(request, 'dojo/system_settings.html', {'form': form})
 
-    else:
-        # Celery needs to be set with the setting: CELERY_RESULT_BACKEND = 'db+sqlite:///dojo.celeryresults.sqlite'
-        if hasattr(settings, 'CELERY_RESULT_BACKEND'):
-            # Check the status of Celery by sending calling a celery task
-            celery_bool = get_celery_worker_status()
+    # Celery needs to be set with the setting: CELERY_RESULT_BACKEND = 'db+sqlite:///dojo.celeryresults.sqlite'
+    if hasattr(settings, 'CELERY_RESULT_BACKEND'):
+        # Check the status of Celery by sending calling a celery task
+        celery_bool = get_celery_worker_status()
 
-            if celery_bool:
-                celery_msg = "Celery is processing tasks."
-                celery_status = "Running"
-            else:
-                celery_msg = "Celery does not appear to be up and running. Please ensure celery is running."
-                celery_status = "Not Running"
+        if celery_bool:
+            celery_msg = "Celery is processing tasks."
+            celery_status = "Running"
         else:
-            celery_bool = False
-            celery_msg = "Celery needs to have the setting CELERY_RESULT_BACKEND = 'db+sqlite:///dojo.celeryresults.sqlite' set in settings.py."
-            celery_status = "Unkown"
+            celery_msg = "Celery does not appear to be up and running. Please ensure celery is running."
+            celery_status = "Not Running"
+    else:
+        celery_bool = False
+        celery_msg = "Celery needs to have the setting CELERY_RESULT_BACKEND = 'db+sqlite:///dojo.celeryresults.sqlite' set in settings.py."
+        celery_status = "Unkown"
 
     add_breadcrumb(title="Application settings", top_level=False, request=request)
     return render(request, 'dojo/system_settings.html',

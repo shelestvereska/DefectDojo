@@ -223,9 +223,7 @@ class TagListSerializerField(serializers.ListField):
             substrings = re.findall(r'(?:"[^"]*"|[^",]+)', s)
             data_safe.extend(substrings)
 
-        internal_value = tagulous.utils.render_tags(data_safe)
-
-        return internal_value
+        return tagulous.utils.render_tags(data_safe)
 
     def to_representation(self, value):
         if not isinstance(value, list):
@@ -301,8 +299,7 @@ class RequestResponseDict(list):
             return json.dumps(
                 self, sort_keys=True, indent=4, separators=(",", ": ")
             )
-        else:
-            return json.dumps(self)
+        return json.dumps(self)
 
 
 class RequestResponseSerializerField(serializers.ListSerializer):
@@ -550,8 +547,7 @@ class UserSerializer(serializers.ModelSerializer):
         ):
             msg = "Update of password though API is not allowed"
             raise ValidationError(msg)
-        else:
-            return super().validate(data)
+        return super().validate(data)
 
 
 class UserContactInfoSerializer(serializers.ModelSerializer):
@@ -1048,8 +1044,7 @@ class EngagementToFilesSerializer(serializers.Serializer):
                     "title": file.title,
                 }
             )
-        new_data = {"engagement_id": engagement.id, "files": new_files}
-        return new_data
+        return {"engagement_id": engagement.id, "files": new_files}
 
 
 class EngagementCheckListSerializer(serializers.ModelSerializer):
@@ -1125,8 +1120,7 @@ class EndpointStatusSerializer(serializers.ModelSerializer):
             if "endpoint-finding relation" in str(ie):
                 msg = "This endpoint-finding relation already exists"
                 raise serializers.ValidationError(msg)
-            else:
-                raise
+            raise
         status.mitigated = validated_data.get("mitigated", False)
         status.false_positive = validated_data.get("false_positive", False)
         status.out_of_scope = validated_data.get("out_of_scope", False)
@@ -1142,8 +1136,7 @@ class EndpointStatusSerializer(serializers.ModelSerializer):
             if "endpoint-finding relation" in str(ie):
                 msg = "This endpoint-finding relation already exists"
                 raise serializers.ValidationError(msg)
-            else:
-                raise
+            raise
 
 
 class EndpointSerializer(TaggitSerializer, serializers.ModelSerializer):
@@ -1405,8 +1398,7 @@ class TestToFilesSerializer(serializers.Serializer):
                     "title": file.title,
                 }
             )
-        new_data = {"test_id": test.id, "files": new_files}
-        return new_data
+        return {"test_id": test.id, "files": new_files}
 
 
 class TestImportFindingActionSerializer(serializers.ModelSerializer):
@@ -1638,8 +1630,7 @@ class FindingSerializer(TaggitSerializer, serializers.ModelSerializer):
             return FindingRelatedFieldsSerializer(
                 required=False
             ).to_representation(obj)
-        else:
-            return None
+        return None
 
     def get_display_status(self, obj) -> str:
         return obj.status()
@@ -1683,8 +1674,7 @@ class FindingSerializer(TaggitSerializer, serializers.ModelSerializer):
 
         # not sure why we are returning a tag_object, but don't want to change
         # too much now as we're just fixing a bug
-        tag_object = self._save_tags(instance, to_be_tagged)
-        return tag_object
+        return self._save_tags(instance, to_be_tagged)
 
     def validate(self, data):
         if self.context["request"].method == "PATCH":
@@ -1820,8 +1810,7 @@ class FindingCreateSerializer(TaggitSerializer, serializers.ModelSerializer):
 
         # not sure why we are returning a tag_object, but don't want to change
         # too much now as we're just fixing a bug
-        tag_object = self._save_tags(new_finding, to_be_tagged)
-        return tag_object
+        return self._save_tags(new_finding, to_be_tagged)
 
     def validate(self, data):
         if "reporter" not in data:
@@ -2716,8 +2705,7 @@ class FindingToFilesSerializer(serializers.Serializer):
                     "title": file.title,
                 }
             )
-        new_data = {"finding_id": finding.id, "files": new_files}
-        return new_data
+        return {"finding_id": finding.id, "files": new_files}
 
 
 class FindingCloseSerializer(serializers.ModelSerializer):
@@ -2972,10 +2960,9 @@ class QuestionnaireQuestionSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         if isinstance(instance, TextQuestion):
             return TextQuestionSerializer(instance=instance).data
-        elif isinstance(instance, ChoiceQuestion):
+        if isinstance(instance, ChoiceQuestion):
             return ChoiceQuestionSerializer(instance=instance).data
-        else:
-            return QuestionSerializer(instance=instance).data
+        return QuestionSerializer(instance=instance).data
 
     class Meta:
         model = Question
@@ -3012,10 +2999,9 @@ class QuestionnaireAnswerSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         if isinstance(instance, TextAnswer):
             return TextAnswerSerializer(instance=instance).data
-        elif isinstance(instance, ChoiceAnswer):
+        if isinstance(instance, ChoiceAnswer):
             return ChoiceAnswerSerializer(instance=instance).data
-        else:
-            return AnswerSerializer(instance=instance).data
+        return AnswerSerializer(instance=instance).data
 
     class Meta:
         model = Answer
@@ -3089,5 +3075,4 @@ class AnnouncementSerializer(serializers.ModelSerializer):
             if 'duplicate key value violates unique constraint "dojo_announcement_pkey"' in str(e):
                 msg = "No more than one Announcement is allowed"
                 raise serializers.ValidationError(msg)
-            else:
-                raise
+            raise

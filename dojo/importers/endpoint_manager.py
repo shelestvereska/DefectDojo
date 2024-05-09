@@ -36,7 +36,7 @@ class DefaultReImporterEndpointManager:
                 endpoint_status.mitigated_by = user
                 endpoint_status.mitigated = True
                 endpoint_status.save()
-        return None
+        return
 
     @dojo_async_task
     @app.task()
@@ -57,7 +57,7 @@ class DefaultReImporterEndpointManager:
                 endpoint_status.mitigated = False
                 endpoint_status.last_modified = timezone.now()
                 endpoint_status.save()
-        return None
+        return
 
     def chunk_endpoints_and_reactivate(
         self,
@@ -81,7 +81,7 @@ class DefaultReImporterEndpointManager:
                 self.reactivate_endpoint_status(endpoint_status_list, sync=False)
         else:
             self.reactivate_endpoint_status(endpoint_status_list, sync=True)
-        return None
+        return
 
     def chunk_endpoints_and_mitigate(
         self,
@@ -106,7 +106,7 @@ class DefaultReImporterEndpointManager:
                 self.mitigate_endpoint_status(endpoint_status_list, user, sync=False)
         else:
             self.mitigate_endpoint_status(endpoint_status_list, user, sync=True)
-        return None
+        return
 
     def update_endpoint_status(
         self,
@@ -141,4 +141,4 @@ class DefaultReImporterEndpointManager:
             )
             self.chunk_endpoints_and_reactivate(endpoint_status_to_reactivate)
         self.chunk_endpoints_and_mitigate(endpoint_status_to_mitigate, user)
-        return None
+        return

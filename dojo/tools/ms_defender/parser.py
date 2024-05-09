@@ -34,30 +34,29 @@ class MSDefenderParser:
             zipdata = {name: input_zip.read(name) for name in input_zip.namelist()}
             if zipdata.get('machines/') is None or zipdata.get('vulnerabilities/') is None:
                 return []
-            else:
-                vulnerabilityfiles = []
-                machinefiles = []
-                for content in list(zipdata):
-                    if "vulnerabilities/" in content and "vulnerabilities/" != content:
-                        vulnerabilityfiles.append(content)
-                    if "machines/" in content and "machines/" != content:
-                        machinefiles.append(content)
-                vulnerabilities = []
-                machines = []
-                for vulnerabilityfile in vulnerabilityfiles:
-                    output = json.loads(zipdata[vulnerabilityfile].decode('ascii'))['value']
-                    for data in output:
-                        vulnerabilities.append(data)
-                for machinefile in machinefiles:
-                    output = json.loads(zipdata[machinefile].decode('ascii'))['value']
-                    for data in output:
-                        machines.append(data)
-                for vulnerability in vulnerabilities:
-                    try:
-                        machine = list(filter(lambda m: m['id'] == vulnerability['machineId'], machines))[0]
-                        self.process_zip(vulnerability, machine)
-                    except IndexError:
-                        self.process_json(vulnerability)
+            vulnerabilityfiles = []
+            machinefiles = []
+            for content in list(zipdata):
+                if "vulnerabilities/" in content and "vulnerabilities/" != content:
+                    vulnerabilityfiles.append(content)
+                if "machines/" in content and "machines/" != content:
+                    machinefiles.append(content)
+            vulnerabilities = []
+            machines = []
+            for vulnerabilityfile in vulnerabilityfiles:
+                output = json.loads(zipdata[vulnerabilityfile].decode('ascii'))['value']
+                for data in output:
+                    vulnerabilities.append(data)
+            for machinefile in machinefiles:
+                output = json.loads(zipdata[machinefile].decode('ascii'))['value']
+                for data in output:
+                    machines.append(data)
+            for vulnerability in vulnerabilities:
+                try:
+                    machine = list(filter(lambda m: m['id'] == vulnerability['machineId'], machines))[0]
+                    self.process_zip(vulnerability, machine)
+                except IndexError:
+                    self.process_json(vulnerability)
         else:
             return []
         return self.findings

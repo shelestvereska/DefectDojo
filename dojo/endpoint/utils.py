@@ -79,11 +79,10 @@ def endpoint_get_or_create(**kwargs):
     if qs.count() == 0:
         return Endpoint.objects.get_or_create(**kwargs)
 
-    elif qs.count() == 1:
+    if qs.count() == 1:
         return qs.first(), False
 
-    else:
-        raise MultipleObjectsReturned()
+    raise MultipleObjectsReturned()
 
 
 def clean_hosts_run(apps, change):
@@ -319,7 +318,7 @@ def endpoint_meta_import(file, product, create_endpoints, create_tags, create_me
                 'The column "hostname" must be present to map host to Endpoint.',
                 extra_tags='alert-danger')
             return HttpResponseRedirect(reverse('import_endpoint_meta', args=(product.id, )))
-        elif origin == 'API':
+        if origin == 'API':
             msg = 'The column "hostname" must be present to map host to Endpoint.'
             raise ValidationError(msg)
 
@@ -355,14 +354,14 @@ def endpoint_meta_import(file, product, create_endpoints, create_tags, create_me
                         for tag in existing_tags:
                             if item[0] not in tag:
                                 continue
-                            else:
-                                # found existing. Update it
-                                existing_tags.remove(tag)
-                                break
+                            # found existing. Update it
+                            existing_tags.remove(tag)
+                            break
                         existing_tags += [item[0] + ':' + item[1]]
                     # if tags are not supposed to be added, this value remain unchanged
                     endpoint.tags = existing_tags
             endpoint.save()
+    return None
 
 
 def remove_broken_endpoint_statuses(apps):

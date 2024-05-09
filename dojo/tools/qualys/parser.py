@@ -89,8 +89,7 @@ def get_severity(severity_value: int, cvss_value: float) -> str:
         elif severity_value is not None:
             sev = legacy_severity_lookup.get(severity_value, "Informational")
         return sev
-    else:
-        return qualys_severity_lookup.get(severity_value, "Informational")
+    return qualys_severity_lookup.get(severity_value, "Informational")
 
 
 def htmltext(blob):
@@ -310,5 +309,4 @@ class QualysParser:
     def get_findings(self, file, test):
         if file.name.lower().endswith(".csv"):
             return csv_parser.parse_csv(file)
-        else:
-            return qualys_parser(file)
+        return qualys_parser(file)

@@ -275,14 +275,13 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
                 scan,
                 **kwargs,
             )
-        else:
-            return self.parse_findings_static_test_type(
-                parser,
-                scan_type,
-                scan,
-                test=test,
-                **kwargs,
-            )
+        return self.parse_findings_static_test_type(
+            parser,
+            scan_type,
+            scan,
+            test=test,
+            **kwargs,
+        )
 
     def determine_process_method(
         self,
@@ -302,13 +301,12 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
                 user,
                 **kwargs,
             )
-        else:
-            return self.sync_process_findings(
-                test,
-                parsed_findings,
-                user,
-                **kwargs,
-            )
+        return self.sync_process_findings(
+            test,
+            parsed_findings,
+            user,
+            **kwargs,
+        )
 
     def update_test_meta(
         self,
@@ -577,7 +575,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
                 endpoint.clean()
             except ValidationError as e:
                 logger.warning(f"DefectDojo is storing broken endpoint because cleaning wasn't successful: {e}")
-        return None
+        return
 
     @dojo_async_task
     @app.task()
@@ -617,7 +615,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
                 endpoint=ep,
                 defaults={'date': finding.date})
         logger.debug(f"IMPORT_SCAN: {len(endpoints)} imported")
-        return None
+        return
 
     @dojo_async_task
     @app.task()
@@ -633,7 +631,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
         """
         test.percent_complete = 100
         test.save()
-        return None
+        return
 
     def get_or_create_test_type(
         self,
@@ -704,11 +702,11 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
             # Return early as there is no value in validating further
             return test
         # Ensure that a test was supplied
-        elif not isinstance(test, Test):
+        if not isinstance(test, Test):
             msg = "A test must be supplied to verify the Tool_Configuration against"
             raise ValidationError(msg)
         # Validate that the test has a value
-        elif test is not None:
+        if test is not None:
             # Make sure the Tool_Configuration is connected to the product that the test is
             if api_scan_configuration.product != test.engagement.product:
                 msg = "API Scan Configuration has to be from same product as the Test"
@@ -720,6 +718,7 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
                 test.save()
             # Return the test here for an early exit
             return test
+        return None
 
     def verify_tool_configuration_from_engagement(
         self,
@@ -740,17 +739,18 @@ class BaseImporter(ABC, DefaultReImporterEndpointManager):
             # Return early as there is no value in validating further
             return engagement
         # Ensure that an engagement was supplied
-        elif not isinstance(engagement, Engagement):
+        if not isinstance(engagement, Engagement):
             msg = "An engagement must be supplied to verify the Tool_Configuration against"
             raise ValidationError(msg)
         # Validate that the engagement has a value
-        elif engagement is not None and isinstance(engagement, Engagement):
+        if engagement is not None and isinstance(engagement, Engagement):
             # Make sure the Tool_Configuration is connected to the engagement that the test is
             if api_scan_configuration.product != engagement.product:
                 msg = "API Scan Configuration has to be from same product as the Engagement"
                 raise ValidationError(msg)
             # Return the test here for an early exit
             return engagement
+        return None
 
     def sanitize_severity(
         self,

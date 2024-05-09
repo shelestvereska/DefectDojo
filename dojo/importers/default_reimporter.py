@@ -458,12 +458,12 @@ class DefaultReImporter(BaseImporter):
                 test=test,
                 hash_code=unsaved_finding.hash_code
             ).exclude(hash_code=None).order_by('id')
-        elif deduplication_algorithm == 'unique_id_from_tool':
+        if deduplication_algorithm == 'unique_id_from_tool':
             return Finding.objects.filter(
                 test=test,
                 unique_id_from_tool=unsaved_finding.unique_id_from_tool
             ).exclude(unique_id_from_tool=None).order_by('id')
-        elif deduplication_algorithm == 'unique_id_from_tool_or_hash_code':
+        if deduplication_algorithm == 'unique_id_from_tool_or_hash_code':
             query = Finding.objects.filter(
                 Q(test=test),
                 (Q(hash_code__isnull=False) & Q(hash_code=unsaved_finding.hash_code))
@@ -471,7 +471,7 @@ class DefaultReImporter(BaseImporter):
             ).order_by('id')
             deduplicationLogger.debug(query.query)
             return query
-        elif deduplication_algorithm == 'legacy':
+        if deduplication_algorithm == 'legacy':
             # This is the legacy reimport behavior. Although it's pretty flawed and doesn't match the legacy algorithm for deduplication,
             # this is left as is for simplicity.
             # Re-writing the legacy deduplication here would be complicated and counter-productive.
@@ -482,9 +482,8 @@ class DefaultReImporter(BaseImporter):
                     test=test,
                     severity=unsaved_finding.severity,
                     numerical_severity=Finding.get_numerical_severity(unsaved_finding.severity)).order_by('id')
-        else:
-            logger.error(f"Internal error: unexpected deduplication_algorithm: \"{deduplication_algorithm}\"")
-            return None
+        logger.error(f"Internal error: unexpected deduplication_algorithm: \"{deduplication_algorithm}\"")
+        return None
 
     def process_matched_finding(
         self,
@@ -510,7 +509,7 @@ class DefaultReImporter(BaseImporter):
                 unchanged_items,
                 **kwargs
             )
-        elif existing_finding.is_mitigated:
+        if existing_finding.is_mitigated:
             return self.process_matched_mitigated_finding(
                 unsaved_finding,
                 existing_finding,
@@ -520,16 +519,15 @@ class DefaultReImporter(BaseImporter):
                 unchanged_items,
                 **kwargs
             )
-        else:
-            return self.process_matched_active_finding(
-                unsaved_finding,
-                existing_finding,
-                user,
-                new_items,
-                reactivated_items,
-                unchanged_items,
-                **kwargs
-            )
+        return self.process_matched_active_finding(
+            unsaved_finding,
+            existing_finding,
+            user,
+            new_items,
+            reactivated_items,
+            unchanged_items,
+            **kwargs
+        )
 
     def process_matched_special_status_finding(
         self,
@@ -599,53 +597,49 @@ class DefaultReImporter(BaseImporter):
                     )
                     # Return True here to force the loop to continue
                     return existing_finding, True
-                else:
-                    logger.debug(
-                        "New imported finding and already existing finding are both mitigated but "
-                        "have different dates, not taking action"
-                    )
-                    # Return True here to force the loop to continue
-                    return existing_finding, True
-            else:
-                # even if there is no mitigation time, skip it, because both the current finding and
-                # the reimported finding are is_mitigated
+                logger.debug(
+                    "New imported finding and already existing finding are both mitigated but "
+                    "have different dates, not taking action"
+                )
                 # Return True here to force the loop to continue
                 return existing_finding, True
-        else:
-            if kwargs.get("do_not_reactivate"):
-                logger.debug(
-                    "Skipping reactivating by user's choice do_not_reactivate: "
-                    f" - {existing_finding.id}: {existing_finding.title} "
-                    f"({existing_finding.component_name} - {existing_finding.component_version})"
-                )
-                # Search for an existing note that this finding has been skipped for reactivation
-                # before this current time
-                existing_note = existing_finding.notes.filter(
+            # even if there is no mitigation time, skip it, because both the current finding and
+            # the reimported finding are is_mitigated
+            # Return True here to force the loop to continue
+            return existing_finding, True
+        if kwargs.get("do_not_reactivate"):
+            logger.debug(
+                "Skipping reactivating by user's choice do_not_reactivate: "
+                f" - {existing_finding.id}: {existing_finding.title} "
+                f"({existing_finding.component_name} - {existing_finding.component_version})"
+            )
+            # Search for an existing note that this finding has been skipped for reactivation
+            # before this current time
+            existing_note = existing_finding.notes.filter(
+                entry=f"Finding has skipped reactivation from {scan_type} re-upload with user decision do_not_reactivate.",
+                author=user,
+            )
+            # If a note has not been left before, we can skip this finding
+            if len(existing_note) == 0:
+                note = Notes(
                     entry=f"Finding has skipped reactivation from {scan_type} re-upload with user decision do_not_reactivate.",
                     author=user,
                 )
-                # If a note has not been left before, we can skip this finding
-                if len(existing_note) == 0:
-                    note = Notes(
-                        entry=f"Finding has skipped reactivation from {scan_type} re-upload with user decision do_not_reactivate.",
-                        author=user,
-                    )
-                    note.save()
-                    existing_finding.notes.add(note)
-                    existing_finding.save(dedupe_option=False)
-                # Return True here to force the loop to continue
-                return existing_finding, True
-            else:
-                logger.debug(
-                    f"Reactivating:  - {existing_finding.id}: {existing_finding.title} "
-                    f"({existing_finding.component_name} - {existing_finding.component_version})"
-                )
-                existing_finding.mitigated = None
-                existing_finding.is_mitigated = False
-                existing_finding.mitigated_by = None
-                existing_finding.active = True
-                if verified is not None:
-                    existing_finding.verified = verified
+                note.save()
+                existing_finding.notes.add(note)
+                existing_finding.save(dedupe_option=False)
+            # Return True here to force the loop to continue
+            return existing_finding, True
+        logger.debug(
+            f"Reactivating:  - {existing_finding.id}: {existing_finding.title} "
+            f"({existing_finding.component_name} - {existing_finding.component_version})"
+        )
+        existing_finding.mitigated = None
+        existing_finding.is_mitigated = False
+        existing_finding.mitigated_by = None
+        existing_finding.active = True
+        if verified is not None:
+            existing_finding.verified = verified
 
         component_name = getattr(unsaved_finding, "component_name", None)
         component_version = getattr(unsaved_finding, "component_version", None)
@@ -806,9 +800,7 @@ class DefaultReImporter(BaseImporter):
             finding.unsaved_files = finding_from_report.unsaved_files
         self.process_files(finding)
         # Process vulnerability IDs
-        finding = self.process_vulnerability_ids(finding)
-
-        return finding
+        return self.process_vulnerability_ids(finding)
 
     def process_groups_for_all_findings(
         self,
@@ -873,5 +865,4 @@ class DefaultReImporter(BaseImporter):
                 serialized_to_mitigate,
                 serialized_untouched,
             )
-        else:
-            return new_items, reactivated_items, to_mitigate, untouched
+        return new_items, reactivated_items, to_mitigate, untouched

@@ -16,10 +16,11 @@ class KubescapeParser:
     def severity_mapper(self, input):
         if input == 1:
             return "Low"
-        elif input == 2:
+        if input == 2:
             return "Medium"
-        elif input == 3:
+        if input == 3:
             return "High"
+        return None
 
     def get_findings(self, filename, test):
         findings = []
