@@ -3018,7 +3018,6 @@ class Finding(models.Model):
             github_conf = github_product_key.conf
         except:
             github_conf = None
-            pass
         return github_conf
 
     # newer version that can work with prefetching
@@ -3027,7 +3026,6 @@ class Finding(models.Model):
             return self.test.engagement.product.github_pkey_set.all()[0].git_conf
         except:
             return None
-            pass
 
     @property
     def has_jira_issue(self):

@@ -1992,14 +1992,6 @@ class TemplateFindingFilter(DojoFilter):
         exclude = ['description', 'mitigation', 'impact',
                    'references', 'numerical_severity']
 
-    not_tags = ModelMultipleChoiceFilter(
-        field_name='tags__name',
-        to_field_name='name',
-        exclude=True,
-        queryset=Finding.tags.tag_model.objects.all().order_by('name'),
-        # label='tags', # doesn't work with tagulous, need to set in __init__ below
-    )
-
     not_test__tags = ModelMultipleChoiceFilter(
         field_name='test__tags__name',
         to_field_name='name',
@@ -2026,8 +2018,6 @@ class TemplateFindingFilter(DojoFilter):
         queryset=Product.tags.tag_model.objects.all().order_by('name'),
         # label='tags', # doesn't work with tagulous, need to set in __init__ below
     )
-
-    not_tag = CharFilter(field_name='tags__name', lookup_expr='icontains', label='Not tag name contains', exclude=True)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
