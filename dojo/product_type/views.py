@@ -376,7 +376,7 @@ def edit_product_type_group(request, groupid):
     return render(request, 'dojo/edit_product_type_group.html', {
         'name': page_name,
         'groupid': groupid,
-        'form': groupform
+        'form': groupform,
     })
 
 
@@ -405,5 +405,5 @@ def delete_product_type_group(request, groupid):
     return render(request, 'dojo/delete_product_type_group.html', {
         'name': page_name,
         'groupid': groupid,
-        'form': groupform
+        'form': groupform,
     })
