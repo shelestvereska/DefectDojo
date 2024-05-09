@@ -542,7 +542,7 @@ class DeleteJiraView(View):
                     create_notification(
                         event='other',
                         title=f'Deletion of JIRA: {jira_instance.configuration_name}',
-                        description=f"JIRA \"{jira_instance.configuration_name}\" was deleted by {request.user}",
+                        description=f'JIRA "{jira_instance.configuration_name}" was deleted by {request.user}',
                         url=request.build_absolute_uri(reverse('jira')))
                     return HttpResponseRedirect(reverse('jira'))
                 except Exception as e:
