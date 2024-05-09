@@ -83,7 +83,7 @@ def endpoint_get_or_create(**kwargs):
         return qs.first(), False
 
     else:
-        raise MultipleObjectsReturned()
+        raise MultipleObjectsReturned
 
 
 def clean_hosts_run(apps, change):
