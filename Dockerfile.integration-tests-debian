@@ -1,7 +1,7 @@
 
 # code: language=Dockerfile
 
-FROM openapitools/openapi-generator-cli:v7.5.0@sha256:cdf11948948de9c21c6035de47dd5fc73c1651c8ba2ea0a4b86a527608ef52a9 as openapitools
+FROM openapitools/openapi-generator-cli:v7.7.0@sha256:99924315933d49e7b33a7d2074bb2b64fc8def8f74519939036e24eb48f00336 as openapitools
 FROM python:3.11.4-slim-bullseye@sha256:40319d0a897896e746edf877783ef39685d44e90e1e6de8d964d0382df0d4952 as build
 WORKDIR /app
 RUN \
